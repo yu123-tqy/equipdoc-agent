@@ -71,6 +71,52 @@ def _source_priority(item: dict[str, Any]) -> float:
         return 0.0
 
 
+def _explicit_parameter_focus(query: str) -> str | None:
+    normalized = query.lower()
+    speed_markers = ("范围", "多少", "最高", "最低", "可调", "额定", "工作转速")
+    if "转速" in normalized and any(marker in normalized for marker in speed_markers):
+        return "speed"
+    if "轴承" in normalized and "型号" in normalized:
+        return "bearing_model"
+    return None
+
+
+def _parameter_focus_score(query: str, item: dict[str, Any]) -> float:
+    """Prefer chunks that contain the value requested by a parameter question.
+
+    Dense similarity and BM25 often rank a broad project overview above the
+    table/requirement that contains the actual number or model designation.
+    This small deterministic reranker is active only for explicit parameter
+    questions and never invents a value: it only promotes matching source text.
+    """
+    normalized_query = query.lower()
+    searchable = _searchable_text(item)
+    normalized_text = searchable.lower()
+    score = 0.0
+    focus = _explicit_parameter_focus(normalized_query)
+
+    if focus == "speed":
+        if "转速" in normalized_text:
+            score += 4.0
+        if re.search(
+            r"\d[\d.]*\s*[～~–—-]\s*\d[\d.]*\s*(?:r/min|rpm)",
+            normalized_text,
+        ):
+            score += 8.0
+        elif re.search(r"\d[\d.]*\s*(?:r/min|rpm)", normalized_text):
+            score += 3.0
+
+    if focus == "bearing_model":
+        if "型号" in normalized_text:
+            score += 4.0
+        if "被测推力轴承" in normalized_text or "被测支撑轴承" in normalized_text:
+            score += 6.0
+        if re.search(r"\b(?:nu\s*)?\d{3,5}(?:em)?\b", normalized_text):
+            score += 4.0
+
+    return score
+
+
 def _rrf(rankings: list[list[str]], k: int = 60) -> dict[str, float]:
     scores: dict[str, float] = {}
     for ranking in rankings:
@@ -212,7 +258,11 @@ class KnowledgeRetriever:
         top_k: int | None = None,
     ) -> list[dict[str, Any]]:
         final_k = top_k or self.settings.rag_top_k
-        pool_size = max(20, final_k)
+        parameter_query = _explicit_parameter_focus(query) is not None
+        # Tables can tokenize less favorably than prose.  Explicit parameter
+        # questions therefore use a wider candidate pool before the focused
+        # reranker promotes the row that actually contains the requested value.
+        pool_size = max(100 if parameter_query else 20, final_k)
         lexical = self._lexical_search(query, filters, pool_size)
         dense = self._dense_search(query, filters, pool_size)
         scores = _rrf(
@@ -227,14 +277,24 @@ class KnowledgeRetriever:
             merged.setdefault(chunk_id, {}).update(item)
             merged[chunk_id]["rrf_score"] = scores.get(chunk_id, 0.0)
             priority = _source_priority(item)
+            focus_score = _parameter_focus_score(query, item)
             merged[chunk_id]["source_priority"] = priority
+            merged[chunk_id]["parameter_focus_score"] = focus_score
             # Priority is deliberately only a near-tie breaker.  With RRF k=60,
             # dividing by one million cannot jump an otherwise relevant result
             # several lexical ranks merely because its source is more authoritative.
             merged[chunk_id]["rank_score"] = scores.get(chunk_id, 0.0) + priority / 1_000_000.0
         ranked = sorted(
             merged.values(),
-            key=lambda item: item.get("rank_score", 0.0),
+            key=lambda item: (
+                item.get("parameter_focus_score", 0.0),
+                (
+                    item.get("source_priority", 0.0)
+                    if item.get("parameter_focus_score", 0.0)
+                    else 0.0
+                ),
+                item.get("rank_score", 0.0),
+            ),
             reverse=True,
         )
         # The corpus contains several chunks per document.  Reserve at least 80%

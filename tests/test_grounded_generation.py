@@ -28,7 +28,7 @@ class GroundedGenerationTests(unittest.TestCase):
 
     def test_grounded_paraphrase_with_sentence_citations_is_valid(self):
         draft = (
-            "## 综合解释\n\n"
+            "## 直接回答\n\n"
             "轴承外圈存在局部缺陷时会形成周期性冲击 "
             "[bearing_outer_race_fault#bearing_outer_race_fault_c001]\n\n"
             "## 现场复核\n\n"
@@ -113,15 +113,15 @@ class GroundedGenerationTests(unittest.TestCase):
         )
         self.assertIn("uncited_claims", str(retry[-1].content))
 
-    def test_retry_policy_skips_semantically_unsupported_drafts(self):
+    def test_retry_policy_repairs_semantic_and_citation_failures_once(self):
         unsupported = validate_grounded_draft(
             "外圈故障每转只冲击一次 [bearing_outer_race_fault#bearing_outer_race_fault_c001]",
             self.evidence,
         )
-        self.assertFalse(should_retry_grounded_synthesis(unsupported))
+        self.assertTrue(should_retry_grounded_synthesis(unsupported))
 
         zero_citation = validate_grounded_draft("第一版没有引用", self.evidence)
-        self.assertFalse(should_retry_grounded_synthesis(zero_citation))
+        self.assertTrue(should_retry_grounded_synthesis(zero_citation))
 
         partially_cited = validate_grounded_draft(
             "轴承外圈局部缺陷会产生周期性冲击 "

@@ -137,8 +137,70 @@ class KnowledgeAnswerTests(unittest.TestCase):
             candidates,
             selection["selected_ids"],
         )
-        self.assertIn("机理与原因", answer)
-        self.assertIn("现场复核", answer)
+        self.assertIn("## 直接回答", answer)
+        self.assertIn("外圈缺陷会产生周期性冲击", answer)
+        self.assertIn("现场应复核", answer)
+        self.assertIn("## 补充依据", answer)
+
+    def test_parameter_fallback_answers_speed_before_listing_contract_evidence(self):
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "plan#speed",
+                "text": "驱动系统可实现0–2000 rpm范围内的稳定运行。",
+                "focused_match": True,
+                "source_priority": 100,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "contract#speed",
+                "text": "转速可调范围不低于0～1400 r/min。",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+        ]
+        question = "试验台的设计转速范围是多少？"
+        selection = select_evidence_for_question(question, candidates, limit=2)
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+
+        direct, supplemental = answer.split("## 补充依据", maxsplit=1)
+        self.assertIn("0–2000 rpm", direct)
+        self.assertNotIn("0～1400 r/min", direct)
+        self.assertIn("0～1400 r/min", supplemental)
+
+    def test_parameter_fallback_formats_both_bearing_models_as_sentences(self):
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "contract#models",
+                "text": "| 1 | 被测推力轴承 | 29412（球面滚子推力轴承） |",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "contract#models",
+                "text": "| 2 | 被测支撑轴承 | NU 212EM（单列圆柱滚子轴承） |",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+        ]
+        question = "试验台使用的轴承型号是什么？"
+        selection = select_evidence_for_question(question, candidates, limit=2)
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+
+        self.assertIn("被测推力轴承型号为 29412", answer)
+        self.assertIn("被测支撑轴承型号为 NU 212EM", answer)
 
     def test_review_ranking_treats_inspection_as_field_review_evidence(self):
         candidates = [
@@ -207,10 +269,11 @@ class KnowledgeAnswerTests(unittest.TestCase):
             selection["selected_ids"],
             selection["slot_assignments"],
         )
-        signal_section, review_section = answer.split("### 现场复核", maxsplit=1)
-        self.assertIn("外圈故障在包络谱中 BPFO", signal_section)
-        self.assertNotIn("外圈故障应复核转速", signal_section)
-        self.assertIn("外圈故障应复核转速", review_section)
+        direct_section, supplemental_section = answer.split("## 补充依据", maxsplit=1)
+        self.assertIn("外圈故障在包络谱中 BPFO", direct_section)
+        self.assertIn("外圈故障应复核转速", direct_section)
+        self.assertNotIn("这是无关", direct_section)
+        self.assertIn("工程上需要结合包络谱", supplemental_section)
 
     def test_causal_connector_is_classified_as_mechanism(self):
         candidates = [
