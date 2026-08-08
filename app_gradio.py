@@ -94,6 +94,39 @@ def _stage_signal(uploaded_file, use_sample: bool) -> Path | None:
     return destination.resolve()
 
 
+def begin_submission():
+    """Put the UI in a cancellable busy state before an agent request starts."""
+    return (
+        "处理中，可点击“停止当前任务”取消本次等待。",
+        "",
+        "",
+        gr.update(interactive=False),
+        gr.update(interactive=False),
+        [],
+        gr.update(visible=False, interactive=False),
+        gr.update(value="", visible=False),
+        gr.update(interactive=False),
+        gr.update(interactive=True),
+    )
+
+
+def stop_current_task():
+    """Reset visible task state; Gradio cancels the linked running event."""
+    return (
+        "",
+        "已停止当前任务。请修改问题后重新提交。",
+        "",
+        "",
+        gr.update(interactive=False),
+        gr.update(interactive=False),
+        [],
+        gr.update(visible=False, interactive=False),
+        gr.update(value="", visible=False),
+        gr.update(interactive=True),
+        gr.update(interactive=False),
+    )
+
+
 def submit(question, uploaded_file, use_sample, thread_id):
     thread_id = thread_id or str(uuid4())
     try:
@@ -124,6 +157,8 @@ def submit(question, uploaded_file, use_sample, thread_id):
                 [],
                 gr.update(visible=False, interactive=False),
                 gr.update(value="", visible=False),
+                gr.update(interactive=True),
+                gr.update(interactive=False),
             )
         retrieval_state, retrieval_button, retrieval_box = _retrieval_view(result)
         return (
@@ -136,6 +171,8 @@ def submit(question, uploaded_file, use_sample, thread_id):
             retrieval_state,
             retrieval_button,
             retrieval_box,
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
     except Exception as exc:
         return (
@@ -148,6 +185,8 @@ def submit(question, uploaded_file, use_sample, thread_id):
             [],
             gr.update(visible=False, interactive=False),
             gr.update(value="", visible=False),
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
 
 
@@ -162,6 +201,8 @@ def resume_review(decision: str, thread_id: str):
             [],
             gr.update(visible=False, interactive=False),
             gr.update(value="", visible=False),
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
     try:
         result = AGENT.invoke(Command(resume=decision), config=_config(thread_id))
@@ -175,6 +216,8 @@ def resume_review(decision: str, thread_id: str):
             retrieval_state,
             retrieval_button,
             retrieval_box,
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
     except Exception as exc:
         return (
@@ -186,6 +229,8 @@ def resume_review(decision: str, thread_id: str):
             [],
             gr.update(visible=False, interactive=False),
             gr.update(value="", visible=False),
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
 
 
@@ -218,6 +263,7 @@ with gr.Blocks(title="EquipDoc-Agent") as demo:
 
     with gr.Row():
         submit_button = gr.Button("提交", variant="primary")
+        stop_button = gr.Button("停止当前任务", variant="stop", interactive=False)
         approve_button = gr.Button("Approve", interactive=False)
         reject_button = gr.Button("Reject", interactive=False)
 
@@ -234,48 +280,85 @@ with gr.Blocks(title="EquipDoc-Agent") as demo:
     with gr.Accordion("启动健康检查", open=False):
         gr.Code(value=json.dumps(HEALTH, ensure_ascii=False, indent=2), language="json")
 
-    submit_button.click(
+    request_start_outputs = [
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+    request_outputs = [
+        thread_state,
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+    review_outputs = [
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+
+    submit_start_event = submit_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    submit_event = submit_start_event.then(
         submit,
         inputs=[question_box, upload, use_sample, thread_state],
-        outputs=[
-            thread_state,
-            status_box,
-            review_box,
-            report_box,
-            approve_button,
-            reject_button,
-            retrieval_state,
-            retrieval_button,
-            retrieval_box,
-        ],
+        outputs=request_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
     )
-    approve_button.click(
+    approve_start_event = approve_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    approve_event = approve_start_event.then(
         lambda thread_id: resume_review("approve", thread_id),
         inputs=[thread_state],
-        outputs=[
-            status_box,
-            review_box,
-            report_box,
-            approve_button,
-            reject_button,
-            retrieval_state,
-            retrieval_button,
-            retrieval_box,
-        ],
+        outputs=review_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
     )
-    reject_button.click(
+    reject_start_event = reject_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    reject_event = reject_start_event.then(
         lambda thread_id: resume_review("reject", thread_id),
         inputs=[thread_state],
-        outputs=[
-            status_box,
-            review_box,
-            report_box,
-            approve_button,
-            reject_button,
-            retrieval_state,
-            retrieval_button,
-            retrieval_box,
-        ],
+        outputs=review_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
+    )
+    stop_button.click(
+        stop_current_task,
+        outputs=request_outputs,
+        cancels=[submit_event, approve_event, reject_event],
+        queue=False,
     )
     retrieval_button.click(
         show_retrieval_hits,

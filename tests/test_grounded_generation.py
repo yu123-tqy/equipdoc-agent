@@ -83,6 +83,51 @@ class GroundedGenerationTests(unittest.TestCase):
         self.assertFalse(validation["valid"])
         self.assertEqual(validation["missing_slots"], ["field_review"])
 
+    def test_negated_maintenance_boundary_cannot_replace_treatment_advice(self):
+        evidence = [
+            {
+                "evidence_id": "E01",
+                "citation": "ball#cause",
+                "text": "滚动体故障的常见原因包括润滑不足、污染和冲击过载。",
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "boundary#no_signal",
+                "text": "资料不足时不得声称已经诊断出滚动体故障，不得编造维修工单。",
+            },
+            {
+                "evidence_id": "E03",
+                "citation": "ball#treatment",
+                "text": "建议检查润滑污染、载荷冲击和安装状态。",
+            },
+        ]
+        rejected = (
+            "滚动体故障的常见原因包括润滑不足、污染和冲击过载 "
+            "[ball#cause]\n\n"
+            "资料不足时不得编造维修工单 [boundary#no_signal]"
+        )
+        validation = validate_grounded_draft(
+            rejected,
+            evidence,
+            question="滚动体发生故障的原因是什么，应该怎么处理",
+        )
+
+        self.assertFalse(validation["valid"])
+        self.assertEqual(validation["missing_slots"], ["maintenance"])
+
+        accepted = (
+            "滚动体故障的常见原因包括润滑不足、污染和冲击过载 "
+            "[ball#cause]\n\n"
+            "建议检查润滑污染、载荷冲击和安装状态 [ball#treatment]"
+        )
+        self.assertTrue(
+            validate_grounded_draft(
+                accepted,
+                evidence,
+                question="滚动体发生故障的原因是什么，应该怎么处理",
+            )["valid"]
+        )
+
     def test_synthesis_prompts_include_only_selected_evidence_and_redact_paths(self):
         messages = build_grounded_synthesis_messages(
             "为什么是外圈故障？",

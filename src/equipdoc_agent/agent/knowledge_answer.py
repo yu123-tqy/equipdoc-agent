@@ -162,8 +162,10 @@ EVIDENCE_SLOT_TERMS: dict[str, tuple[str, ...]] = {
         "原始振动信号",
         "置信度",
         "不能",
+        "不得",
         "不足以",
         "不应",
+        "禁止",
         "人工复核",
         "剩余寿命",
     ),
@@ -215,6 +217,18 @@ FIELD_REVIEW_ACTION_TERMS = (
     "结合",
     "排查",
     "建议",
+)
+
+NEGATED_ACTION_TERMS = ("不得", "不能", "不应", "禁止", "未执行", "没有执行")
+AFFIRMATIVE_MAINTENANCE_TERMS = (
+    "建议检查",
+    "应检查",
+    "应排查",
+    "安排停机",
+    "评估是否更换",
+    "处理建议",
+    "维修建议",
+    "维护建议",
 )
 
 FULL_RAG_SYSTEM_PROMPT = """你是机电装备智能运维辅助 Agent 的证据选择器。
@@ -488,6 +502,16 @@ def _evidence_slots(text: str) -> set[str]:
         for slot, terms in EVIDENCE_SLOT_TERMS.items()
         if any(term in normalized for term in terms)
     }
+    # A safety sentence such as "不得编造维修工单" mentions maintenance only
+    # to prohibit an unsupported claim.  It must not satisfy a user's request
+    # for an actual treatment recommendation.
+    if (
+        "maintenance" in slots
+        and "boundary" in slots
+        and any(term in normalized for term in NEGATED_ACTION_TERMS)
+        and not any(term in normalized for term in AFFIRMATIVE_MAINTENANCE_TERMS)
+    ):
+        slots.discard("maintenance")
     if "不平衡" in normalized and "不对中" in normalized:
         slots.add("comparison")
     return slots

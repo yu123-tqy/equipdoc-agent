@@ -149,7 +149,7 @@ class KnowledgeAnswerTests(unittest.TestCase):
             {
                 "evidence_id": "E01",
                 "citation": "no_signal#boundary",
-                "text": "资料不足时不得声称已经诊断出滚动体故障。",
+                "text": "资料不足时不得声称已经诊断出滚动体故障，不得编造维修工单。",
                 "focused_match": True,
             },
             {
