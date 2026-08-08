@@ -2,71 +2,140 @@
 
 [![CI](https://github.com/yu123-tqy/equipdoc-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/yu123-tqy/equipdoc-agent/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.10--3.12-3776AB?logo=python&logoColor=white)](pyproject.toml)
-[![Portfolio License](https://img.shields.io/badge/license-portfolio%20review-lightgrey)](LICENSE)
+[![RAG](https://img.shields.io/badge/RAG-58_docs_%7C_426_chunks-6A5ACD)](docs/rag_knowledge_source_catalog.md)
+[![License](https://img.shields.io/badge/license-portfolio%20review-lightgrey)](LICENSE)
 
-面向机电设备运维场景的可审核、可降级 Agent。项目将确定性安全策略、LangGraph 人工审核、轴承振动信号诊断工具、可选 RAG 和证据化报告组织为一个可复现的公开工程作品。
+面向机电设备运维场景的可审核 Agent。项目将本地 Qwen 规划、LangGraph 工作流、轴承振动信号工具、混合 RAG、人工审批和可追溯引用组合为一套可运行、可降级、可审计的演示系统。
 
-> 当前公开版本默认运行在无模型 Demo 模式：可以完整演示 Agent 工作流，但故障类型是明确标注的固定案例回放，不能作为真实设备诊断结果。Full 模式需要单独配置 Qwen 服务、CNN 权重和可选向量库。
+> 项目用于技术研究和作品展示，不控制真实设备，不替代现场工程师，也不根据单段信号承诺精确剩余寿命或自动生成真实维修工单。
 
 ![EquipDoc-Agent Demo 首页](docs/assets/demo-overview.png)
 
-## 30 秒了解项目
+## 项目概览
 
 | 项目维度 | 当前实现 |
 |---|---|
-| 目标场景 | 轴承振动信号辅助分析与运维报告生成 |
-| Agent 编排 | LangGraph 状态图、条件路由、可恢复中断；P2.2 可选受限规划与结构化证据闭环 |
-| 人机协同 | 诊断工具执行前必须 Approve/Reject |
-| 工具能力 | `.npy` 信号校验、CNN 诊断接口、知识检索、报告生成 |
-| 安全边界 | 上传沙箱、大小与数值检查、路径白名单、显式降级 |
-| 运行方式 | 本地 Gradio、Docker、AutoDL Full 模式 |
-| 当前证据 | 127 项单元测试、三次 13-turn 面试 Demo、56-case / 64-turn 正式评测、失败演进和限制说明 |
+| 目标场景 | 轴承知识问答、振动信号检查、故障辅助诊断和运维建议 |
+| Agent 编排 | LangGraph 状态图、受约束 JSON 规划、最大步骤限制、确定性降级 |
+| 人机协同 | 轴承诊断工具执行前必须 Approve/Reject |
+| 工具能力 | 知识检索、只读信号检查、CNN 诊断接口 |
+| RAG | BM25/词法 + BGE Dense Retrieval + RRF 融合与来源优先级重排 |
+| 知识规模 | 58 篇文档、426 个结构化切片、133 个原文图片/公式资产 |
+| 可追溯性 | 回答引用 `doc_id#chunk_id`，页面可展开本轮真实召回 Top 5 |
+| 交互能力 | 支持停止当前任务、重新提问、审核诊断调用和查看检索快照 |
+| 当前验证 | 149 项单元测试通过；AutoDL RTX 4090 完成真实 Qwen、CNN 与 Chroma 联调 |
 
-## 为什么需要这个 Agent
+## 为什么这样设计
 
-通用大模型无法直接分析振动时序信号，也容易在设备信息不足时生成缺少依据的维修建议。本项目把自然语言交互与专用诊断工具分离，并在高影响工具调用前加入人工审核：
+机电运维问答同时涉及自然语言、设备参数、振动信号和高影响维修建议。让大模型直接自由生成或自由调用工具，会带来四类问题：
+
+- 可能选错工具，或构造不合法参数；
+- 可能绕过人工审核执行诊断；
+- 可能引用不存在的资料，或把近似参数写成确定事实；
+- 模型、向量库或权重缺失时可能静默失败。
+
+本项目采用“模型理解与规划，程序校验与执行”的分层方式：
 
 ```mermaid
 flowchart LR
-    A[上传振动信号] --> B[安全校验]
-    B --> C[策略判断任务边界]
-    C --> D{人工审核}
-    D -->|Approve| E[轴承诊断工具]
-    D -->|Reject| F[终止工具调用]
-    E --> G[检索故障机理与维护依据]
-    G --> H[生成带证据与边界的报告]
+    A[用户问题 / 振动信号] --> B[输入与路径安全检查]
+    B --> C[Qwen 受约束规划]
+    C --> D[Schema / 工具白名单 / 最大步数]
+    D --> E{工具类型}
+    E -->|知识问答| F[混合 RAG 检索]
+    E -->|只读检查| G[信号统计]
+    E -->|轴承诊断| H{人工 Approve / Reject}
+    H -->|Approve| I[CNN 诊断]
+    H -->|Reject| J[终止调用]
+    F --> K[证据与来源校验]
+    G --> K
+    I --> K
+    K --> L[直接回答 + 补充依据 + 已知边界]
 ```
 
-项目不控制真实设备，不替代工程师作出高风险维修决策，也不根据单段信号预测精确剩余寿命。
+模型计划中的格式性问题可以被规范化和安全修复；只有连续两次都无法形成合法计划时，系统才进入确定性安全路由。格式容错不会放宽工具权限、路径边界或人工审批要求。
 
 ## 核心能力
 
-- **可审核工作流**：使用 LangGraph interrupt/resume，在工具执行前展示调用参数并等待审批；
-- **确定性安全策略**：信号和诊断意图同时满足时才进入诊断分支，关键判断不依赖 LLM 自由发挥；
-- **受限信号工具**：只接受沙箱内、受限大小、有限数值的 `.npy` 一维信号；
-- **显式降级**：缺少 Qwen、CNN 权重或 Chroma 时不静默伪装，Demo 模式和词法检索会明确标注；
-- **证据化输出**：报告区分输入事实、工具结果、检索依据、建议和适用边界；
-- **可选 Agentic 链路**：Full 模式下可启用结构化意图规划、三工具白名单、观察后决策、主动澄清和短期任务记忆；
-- **可复现工程骨架**：包含 `pyproject.toml`、环境变量、Docker、健康检查、Smoke Test 和 CI。
+### 1. 受约束 Agent 工作流
 
-## 演示结果
+- 本地 Qwen 输出结构化意图和工具计划；
+- 本地程序校验 JSON Schema、工具白名单、依赖关系和最大步数；
+- 知识检索与信号检查保持只读；
+- CNN 诊断必须经过人工 Approve/Reject；
+- 计划不可用时显式进入确定性 fallback，而不是静默失败；
+- LangGraph `thread_id` 保存有限的任务上下文和审核状态。
 
-诊断工具调用前，系统会暂停工作流并等待人工审核。审核界面只展示工具名称和经过脱敏的文件名，不暴露服务器内部路径。
+### 2. 可审计的轴承 RAG
+
+知识库覆盖轴承类型、选型、安装配合、润滑、载荷寿命、典型故障、振动特征、现场复核、维修决策和安全边界，同时加入两份项目资料：
+
+- 吊舱推进器推力轴承故障诊断方案；
+- 轴承故障诊断缩比试验台合同技术资料。
+
+资料冲突时采用明确的来源优先级：
+
+| 来源 | 角色 | 优先级 |
+|---|---|---:|
+| 故障诊断实验方案 | 主要事实来源 | 100 |
+| 合同技术资料 | 补充与交叉验证 | 70 |
+| 通用轴承知识 | 机理、方法和维护建议 | 40 |
+
+通用切片采用标题感知策略：目标约 420 字符、上限约 500 字符、重叠约 80 字符。项目 Word 资料额外保存标题层级、章节、页码、原始块位置、图片关系和来源元数据。
+
+检索流程为：
+
+1. BM25/词法检索保留型号、转速、故障部位等精确词；
+2. 本地 `bge-small-zh-v1.5` 生成 512 维向量，从 Chroma 获取语义候选；
+3. 使用 RRF 融合两路排名；
+4. 根据参数焦点、故障对象、来源优先级和文档多样性重排；
+5. 保存本轮 Top 5 快照，供回答引用和页面展开查看。
+
+### 3. 面向问题的证据回答
+
+知识问答使用清晰的三段结构：
+
+1. **直接回答**：先回答型号、转速、原因或处理方法；
+2. **补充依据**：列出支持结论的知识片段；
+3. **已知边界**：说明还需要哪些信号、工况或人工检查。
+
+参数问题优先抽取数值与单位；“原因是什么，应该怎么处理”这类复合问题会同时召回故障机理和处理建议。每个技术结论都可以通过 `doc_id#chunk_id` 回查。
+
+### 4. Top 5 召回展示
+
+回答下方的“查看本次召回 Top 5”可展示：
+
+- 文档标题、`doc_id` 和 `chunk_id`；
+- 原始章节与完整切片文本；
+- RRF、词法、向量和来源优先级等排序信息。
+
+按钮展示的是生成该回答时保存的检索快照，不会在点击后重新检索，便于现场说明真实召回效果。
+
+### 5. 信号安全与人工审核
+
+- UI 只接受上传文件或仓库内置样例，不接受用户输入的服务器路径；
+- 上传文件被复制到 `runtime/uploads`，使用随机文件名并按 TTL 清理；
+- 工具只允许访问 `data/samples` 和 `runtime/uploads`；
+- 仅接受受限大小、数值有限的一维 `.npy` 信号；
+- 审核界面只展示脱敏文件名，不暴露服务器绝对路径；
+- CNN 输出必须结合信号质量、工况和人工检查解释。
 
 ![EquipDoc-Agent 人工审核工具调用](docs/assets/demo-review.png)
 
-审批通过后，系统输出带 Demo 标识、检索证据、处理建议和适用边界的报告：
-
 ![EquipDoc-Agent Demo 诊断报告](docs/assets/demo-report.png)
+
+## 运行模式
+
+| 模式 | 用途 | 必需资源 | 结果边界 |
+|---|---|---|---|
+| Demo | 本地快速体验、CI、工作流展示 | Python 和 Demo 依赖 | 固定诊断案例会明确标注，不代表真实模型推理 |
+| Full Agentic | AutoDL 完整演示 | Qwen、CNN、归一化文件、BGE、Chroma | 真实规划、检索和工具调用，仍受人工审核与安全规则约束 |
 
 ## 快速运行 Demo
 
-### 1. 环境要求
+Demo 模式不需要 GPU、Qwen、CNN 权重或向量数据库。
 
-- Python 3.10、3.11 或 3.12；
-- Demo 模式不需要 GPU、Qwen 模型、CNN 权重或向量库。
-
-### 2. 创建环境并安装
+### 1. 创建环境
 
 Windows PowerShell：
 
@@ -78,7 +147,7 @@ pip install -e ".[demo]"
 Copy-Item .env.example .env
 ```
 
-Linux / AutoDL：
+Linux：
 
 ```bash
 python -m venv .venv
@@ -88,46 +157,239 @@ pip install -e ".[demo]"
 cp .env.example .env
 ```
 
-### 3. 健康检查与测试
+### 2. 健康检查与测试
 
 ```bash
 python -m equipdoc_agent.health --strict
 python scripts/demo_smoke.py
-python -m unittest discover -s tests -v
+python -m unittest discover -s tests -q
 ```
 
-Demo 模式下，`bearing_model`、`bearing_norm` 和 `rag_vector_db` 可以显示为不存在，因为它们不是必需项。
+Demo 模式下，CNN 权重、归一化文件和 Chroma 可以显示为非必需项。
 
-### 4. 启动页面
+### 3. 启动页面
 
 ```bash
 python app_gradio.py
 ```
 
-打开终端显示的本地地址，默认是：
+默认访问：
 
 ```text
 http://127.0.0.1:7860
 ```
 
-若 `7860` 已被占用，应用会自动尝试 `7861`、`7862` 等端口。
+### 4. 体验审核流程
 
-### 5. 体验审核流程
+1. 勾选“使用仓库内置演示信号”；
+2. 输入“请诊断当前轴承信号，并给出判断依据和处理建议”；
+3. 点击“提交”，查看待审核工具；
+4. 点击 Approve 继续，或点击 Reject 验证拒绝分支；
+5. 查看工具输出、知识依据、边界和本轮 Top 5。
 
-1. 保持“使用仓库内置演示信号”为勾选状态；
-2. 使用默认问题“请诊断这段轴承振动信号，并给出判断依据和处理建议”；
-3. 点击“提交”，查看待审核的工具名称和参数；
-4. 点击 `Approve` 继续生成报告，或点击 `Reject` 验证拒绝分支；
-5. Demo 报告会明确说明结果是固定案例，不是真实模型推理。
+## AutoDL Full Agentic 演示
 
-## 运行模式
+完整环境建议使用三个终端：Qwen 服务、健康检查、Gradio 页面。
 
-| 模式 | 用途 | 必需资源 | 输出边界 |
-|---|---|---|---|
-| Demo | 公开仓库复现、工作流演示 | Demo 依赖、内置信号 | 固定故障案例，明确标注 |
-| Full P2 baseline | 复现已发布 P2 真实模型评测 | Qwen 服务、CNN 权重，可选向量库 | 规则路由，Qwen 选择证据句 ID |
-| Full P2.1 Agentic | 结构化规划与多工具实验 | 与 Full 相同 | Qwen 参与规划、观察后决策和证据化综合；仍受确定性安全门约束 |
-| Full P2.2 Agentic | 面试 Demo 质量与延迟优化 | 与 Full 相同 | 槽位化证据选择、结构化回答、逐句引用和可审计生成路径 |
+### 1. 安装完整依赖
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[demo,ml,rag]"
+cp .env.example .env
+```
+
+### 2. 配置 `.env`
+
+```dotenv
+EQUIPDOC_DEMO_MODE=false
+EQUIPDOC_AGENTIC_MODE=true
+EQUIPDOC_AGENT_MAX_STEPS=3
+
+EQUIPDOC_LLM_BASE_URL=http://127.0.0.1:8001/v1
+EQUIPDOC_LLM_MODEL=qwen-equipdoc
+EQUIPDOC_LLM_API_KEY=EMPTY
+EQUIPDOC_LLM_TIMEOUT_SECONDS=120
+
+EQUIPDOC_BEARING_MODEL_PATH=/path/to/bearing_cnn.pth
+EQUIPDOC_BEARING_NORM_PATH=/path/to/norm.npy
+
+EQUIPDOC_RAG_ENABLED=true
+EQUIPDOC_RAG_DB_DIR=vector_db/chroma_equipdoc
+EQUIPDOC_RAG_COLLECTION=equipdoc_rag
+EQUIPDOC_EMBEDDING_MODEL=/path/to/bge-small-zh-v1.5
+EQUIPDOC_RAG_TOP_K=5
+
+EQUIPDOC_SERVER_HOST=0.0.0.0
+EQUIPDOC_SERVER_PORT=7860
+```
+
+模型权重、`.env`、Chroma 目录、处理后私有数据和上传文件都不应提交 Git。
+
+### 3. 构建 Chroma 索引
+
+第一次运行、切片更新或 Embedding 模型变化时执行：
+
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+python scripts/build_rag_index.py --reset
+```
+
+普通重启不需要重复构建。当前索引应包含 426 个切片，集合名为 `equipdoc_rag`。
+
+### 4. 终端 A：启动 Qwen
+
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+python scripts/serve_qwen_openai.py \
+  --model-path /path/to/Qwen2.5-7B-Instruct-EquipDoc \
+  --served-model-name qwen-equipdoc \
+  --host 127.0.0.1 \
+  --port 8001
+```
+
+### 5. 终端 B：检查服务
+
+```bash
+python scripts/check_full_service.py \
+  --base-url http://127.0.0.1:8001/v1 \
+  --model qwen-equipdoc \
+  --output artifacts/p2/service_check_latest.json
+
+python -m equipdoc_agent.health --strict
+```
+
+### 6. 终端 C：启动页面
+
+```bash
+python app_gradio.py
+```
+
+更完整的 AutoDL 路径配置、演示顺序和问题排查见 [RAG 知识库扩展与演示交接文档](docs/rag-knowledge-expansion-demo-handoff.md)。
+
+## 推荐演示问题
+
+知识问答时取消勾选内置演示信号：
+
+```text
+结合故障诊断方案和试验台合同，说明该项目如何完成推力轴承故障模拟、信号采集和诊断验证。
+```
+
+```text
+吊舱推进器推力轴承故障诊断试验台的设计转速范围是多少？请给出文档依据。
+```
+
+```text
+试验台使用的轴承型号是什么？请给出文档依据。
+```
+
+```text
+滚动体发生故障的原因是什么，应该怎么处理？
+```
+
+诊断演示时勾选内置样例信号：
+
+```text
+请诊断当前轴承信号，并结合知识库说明故障类型、诊断依据、现场复核方法和处理建议。
+```
+
+## 项目结构
+
+```text
+equipdoc-agent/
+├─ app_gradio.py                   # Gradio 入口
+├─ src/equipdoc_agent/
+│  ├─ agent/                       # LangGraph、规划、工具执行与证据回答
+│  ├─ rag/                         # 混合检索、索引清单与降级
+│  ├─ tools/                       # 信号检查与轴承诊断工具
+│  ├─ models/                      # CNN 结构
+│  ├─ config.py                    # 环境配置
+│  ├─ health.py                    # 启动健康检查
+│  └─ retrieval_display.py         # Top 5 检索快照展示
+├─ data/
+│  ├─ knowledge/                   # 58 篇结构化知识文档
+│  ├─ knowledge_assets/            # 原文图片和公式资产
+│  ├─ knowledge_chunks.jsonl       # 426 个 Chroma 兼容切片
+│  ├─ knowledge_chunk_overrides.jsonl
+│  ├─ knowledge_source_anchors.jsonl
+│  ├─ eval/                        # 固定评测输入
+│  └─ samples/                     # 公开演示信号
+├─ scripts/                        # 索引、服务、评测与检查脚本
+├─ tests/                          # 单元与回归测试
+├─ docs/                           # 架构、RAG、演示和交接文档
+├─ artifacts/                      # 精简后的最终评测证据
+├─ .env.example
+├─ pyproject.toml
+├─ Dockerfile
+└─ docker-compose.yml
+```
+
+## 测试与评测
+
+### 当前代码验证
+
+```bash
+python -m unittest discover -s tests -q
+python -m ruff check .
+python scripts/build_knowledge_chunks.py --check
+```
+
+当前清理分支已完成 **149 项单元测试，全部通过**。测试覆盖规划解析与修复、工具权限、人工审核、引用校验、RAG 重排、来源优先级、Top 5 展示、任务停止、上传安全、运行时清理和索引清单等。
+
+### RAG 检索结果
+
+| 评测 | 结果 | 口径 |
+|---|---:|---|
+| 项目资料 20 题 | Hit@5 100%，MRR@10 83.25% | BM25；实验方案与合同资料的文档级命中 |
+| 扩展知识 100 题 | Hit@5 91%，MRR@10 77.24% | BM25；58 文档、426 切片 |
+
+这些指标衡量检索命中，不等于最终回答正确率。
+
+### 真实 Qwen + CNN 归档评测
+
+仓库保留了 RTX 4090 环境的最终归档证据：
+
+- 56-case / 64-turn 固定自动合同通过 64/64；
+- 平均 / p50 / p95 端到端延迟为 5.100 / 5.889 / 9.926 秒；
+- 38 个知识回答走结构化证据路径；
+- 规划路径包含模型首轮、重试和确定性 fallback；
+- 人工质量复核未完成，CNN 也没有可信的跨来源 Group Split 准确率。
+
+归档结果对应当时冻结的代码、输入和环境，不应解释为当前开放问题正确率、模型规划准确率或工业诊断准确率。最新 RAG、规划容错、任务停止和回答覆盖修复由当前单元测试与 AutoDL 现场联调验证，尚未重新声明新的全量人工质量指标。
+
+最终证据保存在：
+
+- [`artifacts/p1/`](artifacts/p1/)
+- [`artifacts/p2/`](artifacts/p2/)
+- [`artifacts/p2_1/agentic_eval.json`](artifacts/p2_1/agentic_eval.json)
+- [`artifacts/p2_2/demo_eval_run_3.json`](artifacts/p2_2/demo_eval_run_3.json)
+- [`artifacts/p2_2/formal_regression_64_turn_fix3.json`](artifacts/p2_2/formal_regression_64_turn_fix3.json)
+
+## 安全与适用边界
+
+- 项目不控制真实设备，不执行停机、调参或维修动作；
+- CNN 结果只用于辅助演示，必须结合工况、信号质量和人工检查；
+- 不根据单段信号推断精确剩余寿命；
+- 不把自动合同通过率表述为人工回答正确率；
+- 不把 RAG Hit@5 表述为最终问答准确率；
+- 不把单次分类置信度表述为模型总体准确率；
+- 项目资料经过结构化整理，但仍应结合原始方案和现场版本复核；
+- 正式扩展时应补充标准、教材和厂商手册的版本、适用设备与失效日期。
+
+## 文档索引
+
+| 文档 | 内容 |
+|---|---|
+| [系统架构](docs/architecture.md) | 工作流、工具边界、RAG 与部署结构 |
+| [可信评测报告](docs/evaluation-report.md) | P1 基线、指标口径与限制 |
+| [安全与证据评测](docs/p1-2-safety-grounding-report.md) | 高风险边界和引用校验 |
+| [RAG 项目资料说明](docs/rag_project_sources.md) | 两份项目资料、切片和优先级 |
+| [知识来源目录](docs/rag_knowledge_source_catalog.md) | 58 篇知识文档目录 |
+| [知识覆盖矩阵](docs/rag_knowledge_coverage_matrix.md) | 轴承知识主题覆盖情况 |
+| [演示交接文档](docs/rag-knowledge-expansion-demo-handoff.md) | 本轮修改、AutoDL 启动和完整演示流程 |
+| [面试演示 Runbook](docs/interview-demo-runbook.md) | 3～5 分钟演示顺序 |
+| [项目讲解话术](docs/interview-project-talk-track.md) | 项目表达与追问应答 |
 
 ## Docker Demo
 
@@ -135,182 +397,8 @@ http://127.0.0.1:7860
 docker compose up --build
 ```
 
-浏览器打开 `http://127.0.0.1:7860`。Docker 镜像只包含 Demo 所需依赖，不包含7B模型和 Torch。
-
-## AutoDL Full 模式
-
-### 1. 安装完整依赖
-
-```bash
-pip install -e ".[demo,ml,rag]"
-```
-
-### 2. 准备本地模型文件
-
-把文件放在配置指定位置，不要提交 GitHub：
-
-```text
-models/bearing_cnn.pth
-data/processed/norm.npy
-```
-
-### 3. 配置服务
-
-在 `.env` 中修改：
-
-```dotenv
-EQUIPDOC_DEMO_MODE=false
-EQUIPDOC_AGENTIC_MODE=false
-EQUIPDOC_LLM_BASE_URL=http://127.0.0.1:8000/v1
-EQUIPDOC_LLM_MODEL=qwen-equipdoc
-EQUIPDOC_LLM_API_KEY=EMPTY
-```
-
-Qwen 服务应提供 OpenAI-compatible `/chat/completions` 接口。模型继续保留在 AutoDL，不应把大模型权重上传 GitHub。
-
-Full 模式的知识问答会先做设备/故障聚焦检索，再按问题意图重排并去除单一切片冗余。P2.2 将多子问题拆成机理、信号特征、现场复核和安全边界等证据槽位，最终答案与 `doc_id#chunk_id` 引用由系统按已校验证据结构化组织；不合格的模型草稿不会直接展示。
-
-若要进入 P2.1 Agentic 链路，显式设置：
-
-```dotenv
-EQUIPDOC_DEMO_MODE=false
-EQUIPDOC_AGENTIC_MODE=true
-EQUIPDOC_AGENT_MAX_STEPS=3
-```
-
-P2.1/P2.2 使用“严格 JSON Prompt → 本地 Schema/白名单校验 → 系统执行工具”，不是原生 Function Calling。模型可以选择知识检索、只读信号检查和轴承诊断三个工具；只有诊断工具需要 Approve/Reject。规划不合格时会明确进入确定性路由；回答草稿不满足引用和 grounded 约束时，P2.2 使用已通过槽位检查的结构化证据答案，不展示未验证草稿。
-
-2026-07-29 的 RTX 4090 实测基线完成20/20次真实模型调用：严格自动通过14/20，平均必需关键词召回91.25%，引用原文逐字匹配率100%，一次预热后的串行端到端 p50/p95 为0.414/0.433秒。结果同时暴露了多子问题证据选择不完整和严格关键词门槛假阴性，不能解释为人工正确率或工业诊断准确率。完整报告见 [`docs/p2-full-evaluation-report.md`](docs/p2-full-evaluation-report.md)，复现步骤见 [`docs/p2-autodl-full-evaluation.md`](docs/p2-autodl-full-evaluation.md)。
-
-2026-08-01 的 P2.1 正式评测在冻结的56-case / 64-turn集上完成：最终自动合同通过64/64，平均 / p50 / p95 端到端延迟为7.472 / 8.541 / 16.758秒。52个规划turn中25个模型计划被首轮或重试接受、27个使用确定性fallback；38个证据回答全部使用`extractive_fallback`。完整失败演进为57/64 → 63/64 → 64/64，正式人工复核工作簿已生成但当前为0/64。因此这些数字不能解释为人工回答正确率或工业诊断准确率。完整报告见 [`docs/p2-1-agentic-evaluation-report.md`](docs/p2-1-agentic-evaluation-report.md)。
-
-同日完成的 P2.2 在不放宽冻结合同的前提下优化证据槽位、结构化回答和无效重试：13-turn 面试 Demo 连续三次均为13/13，最终正式回归仍为64/64，平均 / p50 / p95 延迟降至5.100 / 5.889 / 9.926秒；38个证据回答均为`structured_evidence_answer`，答案层`safe_fallback`为0。52个规划turn仍有26个确定性fallback，Demo人工复核当前为0/13，因此不能把自动通过率解释为人工正确率或模型规划准确率。完整报告见 [`docs/p2-2-demo-quality-evaluation-report.md`](docs/p2-2-demo-quality-evaluation-report.md)。
-
-随后针对 Full Gradio 现场暴露的 JSON 计划与 `signal_file` 依赖问题增加了规划热修复：两个指定演示问题连续三轮均不再显示规划降级，当前共有130项单元测试；热修复代码上的13-turn Demo 为13/13，但64-turn正式回归为63/64，仍有1个诊断回答未通过引用与 Grounded Guard。该结果不能替代上面的 Fix 3 归档快照，也不能把当前代码描述为64/64；本次按用户决定保留这一已知回归并直接进行 Git 收口。
-
-P2.2 收口后还完成了本地 Gradio 页面级验证，覆盖知识问题与样例信号的路由隔离、Approve/Reject、移除信号后的状态清理、审核载荷隐私和剩余寿命安全抢占；验证过程中发现的三个 UI/路由问题均已修复并加入回归测试。记录见 [`docs/p2-2-gradio-demo-validation.md`](docs/p2-2-gradio-demo-validation.md)。
-
-### 4. 可选：构建向量库
-
-```bash
-python scripts/build_rag_index.py
-```
-
-没有向量库时，系统会降级到词法检索，并在健康信息中说明 Dense Retrieval 未启用。
-
-## 项目结构
-
-```text
-equipdoc-agent/
-├─ app_gradio.py               # Gradio 演示入口
-├─ pyproject.toml              # 包、依赖和工具配置
-├─ src/equipdoc_agent/
-│  ├─ agent/                   # LangGraph、策略和报告
-│  ├─ tools/                   # 安全信号诊断工具
-│  ├─ rag/                     # Dense/词法检索与降级
-│  ├─ models/                  # CNN 结构定义
-│  ├─ config.py
-│  └─ health.py
-├─ data/
-│  ├─ samples/                 # 可公开演示信号
-│  ├─ knowledge/               # 当前知识笔记
-│  └─ eval/                    # 评测输入
-├─ tests/                      # 不依赖大模型的基础测试
-├─ scripts/                    # Smoke Test、索引和历史脚本
-├─ docs/                       # 架构、迁移说明与展示素材
-└─ artifacts/legacy/          # 原 AutoDL 历史证据
-```
-
-详细设计见 [`docs/architecture.md`](docs/architecture.md)，迁移说明见 [`docs/migration-notes.md`](docs/migration-notes.md)。
-
-## 配置说明
-
-完整示例见 [`.env.example`](.env.example)。
-
-| 变量 | 用途 | 安全默认值 |
-|---|---|---|
-| `EQUIPDOC_DEMO_MODE` | 是否使用无模型固定案例 | `true` |
-| `EQUIPDOC_AGENTIC_MODE` | 是否在 Full 模式启用 P2.1 受限规划 | `false` |
-| `EQUIPDOC_AGENT_MAX_STEPS` | P2.1 单轮最大工具步数，限制为1～4 | `3` |
-| `EQUIPDOC_LLM_BASE_URL` | OpenAI-compatible 服务地址 | 本机8000端口 |
-| `EQUIPDOC_BEARING_MODEL_PATH` | CNN 权重路径 | `models/bearing_cnn.pth` |
-| `EQUIPDOC_UPLOAD_ROOT` | 上传沙箱 | `runtime/uploads` |
-| `EQUIPDOC_MAX_UPLOAD_MB` | 上传大小限制 | `8` |
-| `EQUIPDOC_UPLOAD_TTL_HOURS` | 应用暂存信号保留时长 | `24` |
-| `EQUIPDOC_RAG_DB_DIR` | Chroma 目录 | `vector_db/chroma_equipdoc` |
-| `EQUIPDOC_EMBEDDING_MODEL` | Embedding 模型 | `BAAI/bge-small-zh-v1.5` |
-
-## 测试与持续集成
-
-本地测试：
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-当前本地实现包含130项 `unittest`，覆盖旧 Demo/P2 回归以及 P2.1/P2.2 规划校验、系统信号依赖归一化、未知依赖拒绝、三工具权限、人工审核、最大步数、多轮记忆、逐句引用、槽位化证据覆盖、知识检索锚定、Demo 样例信号与知识问题的路由隔离、移除信号后的会话状态清理、安全策略优先级、降级分支、隐私与运行时清理、索引清单和正式评测集合同。
-
-`.github/workflows/ci.yml` 会在 GitHub 上使用 Python 3.10、3.11 和 3.12 自动运行单元测试、健康检查和 Demo Smoke Test。
-
-P1 还把 Agent 与 RAG 指标设为回归门槛，防止后续改动静默降低当前基线：
-
-```bash
-python scripts/build_knowledge_chunks.py --check
-python scripts/eval_agent_workflow.py --min-case-pass-rate 1.00
-python scripts/eval_rag_retrieval.py --min-hit-at-5 0.90 --min-mrr-at-10 0.75
-python scripts/eval_safety_grounding.py --min-case-pass-rate 1.00
-```
-
-## 评测证据与适用边界
-
-当前可复现的 P1 基线：
-
-| 模块 | 结果 | 口径 |
-|---|---:|---|
-| Agent 工作流 | 30 条总通过率 100% | 无模型 Demo；确定性路由、知识覆盖与人工审核流程 |
-| 高风险边界 | 20 条固定用例通过率 100% | 确定性规则、引用有效性与抽取证据一致性 |
-| RAG 检索 | Hit@5 91.0%，MRR@10 76.8% | 100 条旧测试；14篇知识文档；文档级相关性 |
-| Qwen Full 模式 | 严格通过14/20；关键词召回91.25%；p95 0.433秒 | RTX 4090；BM25；模型选择证据ID；引用原文匹配100%；非人工正确率 |
-| P2.1 Agentic | 正式自动合同通过64/64；p95 16.758秒 | RTX 4090；真实 Qwen + CNN；52个规划turn中25个模型计划被接受、27个确定性fallback；38个证据回答全部抽取式fallback；人工复核0/64 |
-| P2.2 Agentic | 三次Demo均13/13；正式自动合同64/64；p95 9.926秒 | RTX 4090；真实 Qwen + CNN；38个结构化证据回答；26/52确定性规划fallback；Demo人工复核0/13 |
-| P2.2 Live规划热修复 | Demo 13/13；正式自动合同63/64；p95 8.954秒 | 指定Full页面问题已无规划降级；正式集仍有1个诊断引用/Guard回归，尚未定位 |
-| CNN | 暂不报告准确率 | 旧数据不具备可信文件级 Group Split 条件 |
-
-P1 原始口径见 [`docs/evaluation-report.md`](docs/evaluation-report.md)，P1.2 安全与证据评测见 [`docs/p1-2-safety-grounding-report.md`](docs/p1-2-safety-grounding-report.md)，P2 真实模型报告见 [`docs/p2-full-evaluation-report.md`](docs/p2-full-evaluation-report.md)，P2.1 Smoke、正式评测和失败演进见 [`docs/p2-1-agentic-evaluation-report.md`](docs/p2-1-agentic-evaluation-report.md)，P2.2 三次 Demo、最终正式回归和限制见 [`docs/p2-2-demo-quality-evaluation-report.md`](docs/p2-2-demo-quality-evaluation-report.md)，P2.1 正式评测合同与执行记录见 [`docs/p2-1-formal-evaluation-plan.md`](docs/p2-1-formal-evaluation-plan.md)，后续本地/AutoDL 操作见 [`docs/p1-autodl-runbook.md`](docs/p1-autodl-runbook.md)。
-
-`artifacts/legacy/` 保存原 AutoDL 结果，用于保留实验链路，不作为最终性能结论：
-
-- 30条 Agent 评测主要验证规则路由和审核分支；
-- FP16结果只有9次串行请求，且没有记录GPU型号；
-- BNB 4-bit结果是单问题测试；
-- 旧CNN随机窗口拆分存在同源数据泄漏风险；
-- 100条 RAG 测试集存在，但当前仓库没有原实验的最终 RAG 输出。
-
-在完成跨工况 Group Split、人工 groundedness 审查和可复现实验之前，本项目不宣称“CNN准确率100%”“工具路由100%”或未经复核的“幻觉降低率”。
-
-## 安全与公开边界
-
-- UI只接受上传文件或内置样例，不接受服务器路径输入；
-- 上传文件被复制到 `runtime/uploads` 并使用随机文件名，过期暂存文件会自动清理；
-- 工具只允许读取 `data/samples` 和 `runtime/uploads`；
-- 仅接受受限大小的数值型一维 `.npy`；
-- 向量索引必须通过切片哈希、Embedding 模型和集合名清单校验，陈旧索引会禁用而不是静默使用；
-- Qwen 服务非回环地址默认要求 Bearer Token，GPU 推理并发数默认限制为1；
-- Demo 标签不能删除，避免固定案例被误解为真实推理；
-- 真实单位代码、内部手册、客户数据、模型权重和密钥不得进入仓库；
-- 当前知识库为项目笔记，正式评测前仍需补充权威来源和版本信息。
-
-## Roadmap
-
-下一阶段聚焦人工质量复核和 P2.2 剩余稳定性问题：
-
-1. 使用 `artifacts/p2_2/demo_human_review.xlsx` 完成13个面试 Demo turn 的人工复核，并保留 P2.1 正式集0/64的未审状态；
-2. 先定位当前 Live 热修复代码的1个正式诊断回归，再分别报告 Fix 3 快照与 Live 代码的首轮、重试和确定性路由分布；
-3. 提升带引用的模型自然综合通过率，避免把38个结构化证据答案误解为自由生成已稳定；
-4. 优化 `knowledge_qa` 延迟，其当前 p50 为7.055秒，仍高于6秒目标；
-5. 保留旧 CNN 数据泄漏限制，后续按原始文件和工况进行 Group Split；
-6. 为知识库补充权威来源和版本信息，人工复核完成后再更新简历质量指标。
+浏览器打开 `http://127.0.0.1:7860`。Docker Demo 不包含 Qwen、CNN 权重或 Chroma 数据库。
 
 ## License
 
-本仓库使用作品展示许可，允许招聘、教育和个人作品评审。第三方模型、数据集、文档和商标仍遵循各自许可，详见 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
+本仓库使用作品展示许可，允许招聘、教育和个人作品评审。第三方模型、数据、文档和商标遵循各自许可，详见 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
