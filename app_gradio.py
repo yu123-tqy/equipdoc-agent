@@ -21,6 +21,10 @@ from equipdoc_agent.config import Settings
 from equipdoc_agent.health import collect_health
 from equipdoc_agent.networking import find_available_port
 from equipdoc_agent.privacy import public_exception_message
+from equipdoc_agent.retrieval_display import (
+    render_retrieval_hits_markdown,
+    sanitize_retrieval_hits,
+)
 from equipdoc_agent.runtime_cleanup import cleanup_stale_uploads
 
 
@@ -45,6 +49,23 @@ def _interrupt_payload(result: dict):
         return None
     first = interrupts[0] if isinstance(interrupts, (list, tuple)) else interrupts
     return getattr(first, "value", first)
+
+
+def _retrieval_view(result: dict):
+    hits = sanitize_retrieval_hits(result.get("retrieval_hits") or [])
+    return (
+        hits,
+        gr.update(visible=bool(hits), interactive=bool(hits)),
+        gr.update(value="", visible=False),
+    )
+
+
+def show_retrieval_hits(hits):
+    safe_hits = sanitize_retrieval_hits(hits)
+    return gr.update(
+        value=render_retrieval_hits_markdown(safe_hits),
+        visible=bool(safe_hits),
+    )
 
 
 def _uploaded_path(uploaded_file) -> Path | None:
@@ -73,6 +94,39 @@ def _stage_signal(uploaded_file, use_sample: bool) -> Path | None:
     return destination.resolve()
 
 
+def begin_submission():
+    """Put the UI in a cancellable busy state before an agent request starts."""
+    return (
+        "处理中，可点击“停止当前任务”取消本次等待。",
+        "",
+        "",
+        gr.update(interactive=False),
+        gr.update(interactive=False),
+        [],
+        gr.update(visible=False, interactive=False),
+        gr.update(value="", visible=False),
+        gr.update(interactive=False),
+        gr.update(interactive=True),
+    )
+
+
+def stop_current_task():
+    """Reset visible task state; Gradio cancels the linked running event."""
+    return (
+        "",
+        "已停止当前任务。请修改问题后重新提交。",
+        "",
+        "",
+        gr.update(interactive=False),
+        gr.update(interactive=False),
+        [],
+        gr.update(visible=False, interactive=False),
+        gr.update(value="", visible=False),
+        gr.update(interactive=True),
+        gr.update(interactive=False),
+    )
+
+
 def submit(question, uploaded_file, use_sample, thread_id):
     thread_id = thread_id or str(uuid4())
     try:
@@ -87,6 +141,8 @@ def submit(question, uploaded_file, use_sample, thread_id):
             # Explicitly clear a signal retained by the same LangGraph thread
             # when the user unchecks/removes the file on a later turn.
             "signal_path": str(signal_path) if signal_path else "",
+            # Clear the previous turn's trace before the graph records this turn.
+            "retrieval_hits": [],
         }
         result = AGENT.invoke(payload, config=_config(thread_id))
         payload = _interrupt_payload(result)
@@ -98,13 +154,24 @@ def submit(question, uploaded_file, use_sample, thread_id):
                 "",
                 gr.update(interactive=True),
                 gr.update(interactive=True),
+                [],
+                gr.update(visible=False, interactive=False),
+                gr.update(value="", visible=False),
+                gr.update(interactive=True),
+                gr.update(interactive=False),
             )
+        retrieval_state, retrieval_button, retrieval_box = _retrieval_view(result)
         return (
             thread_id,
             "已完成",
             "",
             _last_content(result),
             gr.update(interactive=False),
+            gr.update(interactive=False),
+            retrieval_state,
+            retrieval_button,
+            retrieval_box,
+            gr.update(interactive=True),
             gr.update(interactive=False),
         )
     except Exception as exc:
@@ -115,19 +182,41 @@ def submit(question, uploaded_file, use_sample, thread_id):
             public_exception_message(exc, project_root=SETTINGS.project_root),
             gr.update(interactive=False),
             gr.update(interactive=False),
+            [],
+            gr.update(visible=False, interactive=False),
+            gr.update(value="", visible=False),
+            gr.update(interactive=True),
+            gr.update(interactive=False),
         )
 
 
 def resume_review(decision: str, thread_id: str):
     if not thread_id:
-        return "没有待审核任务", "", "", gr.update(interactive=False), gr.update(interactive=False)
+        return (
+            "没有待审核任务",
+            "",
+            "",
+            gr.update(interactive=False),
+            gr.update(interactive=False),
+            [],
+            gr.update(visible=False, interactive=False),
+            gr.update(value="", visible=False),
+            gr.update(interactive=True),
+            gr.update(interactive=False),
+        )
     try:
         result = AGENT.invoke(Command(resume=decision), config=_config(thread_id))
+        retrieval_state, retrieval_button, retrieval_box = _retrieval_view(result)
         return (
             "已完成",
             "",
             _last_content(result),
             gr.update(interactive=False),
+            gr.update(interactive=False),
+            retrieval_state,
+            retrieval_button,
+            retrieval_box,
+            gr.update(interactive=True),
             gr.update(interactive=False),
         )
     except Exception as exc:
@@ -136,6 +225,11 @@ def resume_review(decision: str, thread_id: str):
             "",
             public_exception_message(exc, project_root=SETTINGS.project_root),
             gr.update(interactive=False),
+            gr.update(interactive=False),
+            [],
+            gr.update(visible=False, interactive=False),
+            gr.update(value="", visible=False),
+            gr.update(interactive=True),
             gr.update(interactive=False),
         )
 
@@ -155,6 +249,7 @@ with gr.Blocks(title="EquipDoc-Agent") as demo:
     gr.Markdown("# EquipDoc-Agent｜机电设备智能运维 Agent")
     gr.Markdown(MODE_NOTICE)
     thread_state = gr.State("")
+    retrieval_state = gr.State([])
 
     with gr.Row():
         question_box = gr.Textbox(
@@ -168,29 +263,107 @@ with gr.Blocks(title="EquipDoc-Agent") as demo:
 
     with gr.Row():
         submit_button = gr.Button("提交", variant="primary")
+        stop_button = gr.Button("停止当前任务", variant="stop", interactive=False)
         approve_button = gr.Button("Approve", interactive=False)
         reject_button = gr.Button("Reject", interactive=False)
 
     status_box = gr.Textbox(label="状态", interactive=False)
     review_box = gr.Code(label="待审核工具调用", language="json")
     report_box = gr.Markdown()
+    retrieval_button = gr.Button(
+        "查看本次召回 Top 5",
+        variant="secondary",
+        visible=False,
+        interactive=False,
+    )
+    retrieval_box = gr.Markdown(visible=False)
     with gr.Accordion("启动健康检查", open=False):
         gr.Code(value=json.dumps(HEALTH, ensure_ascii=False, indent=2), language="json")
 
-    submit_button.click(
+    request_start_outputs = [
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+    request_outputs = [
+        thread_state,
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+    review_outputs = [
+        status_box,
+        review_box,
+        report_box,
+        approve_button,
+        reject_button,
+        retrieval_state,
+        retrieval_button,
+        retrieval_box,
+        submit_button,
+        stop_button,
+    ]
+
+    submit_start_event = submit_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    submit_event = submit_start_event.then(
         submit,
         inputs=[question_box, upload, use_sample, thread_state],
-        outputs=[thread_state, status_box, review_box, report_box, approve_button, reject_button],
+        outputs=request_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
     )
-    approve_button.click(
+    approve_start_event = approve_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    approve_event = approve_start_event.then(
         lambda thread_id: resume_review("approve", thread_id),
         inputs=[thread_state],
-        outputs=[status_box, review_box, report_box, approve_button, reject_button],
+        outputs=review_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
     )
-    reject_button.click(
+    reject_start_event = reject_button.click(
+        begin_submission,
+        outputs=request_start_outputs,
+        queue=False,
+    )
+    reject_event = reject_start_event.then(
         lambda thread_id: resume_review("reject", thread_id),
         inputs=[thread_state],
-        outputs=[status_box, review_box, report_box, approve_button, reject_button],
+        outputs=review_outputs,
+        concurrency_limit=2,
+        concurrency_id="agent_requests",
+    )
+    stop_button.click(
+        stop_current_task,
+        outputs=request_outputs,
+        cancels=[submit_event, approve_event, reject_event],
+        queue=False,
+    )
+    retrieval_button.click(
+        show_retrieval_hits,
+        inputs=[retrieval_state],
+        outputs=[retrieval_box],
     )
 
 

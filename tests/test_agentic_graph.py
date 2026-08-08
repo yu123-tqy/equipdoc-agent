@@ -94,6 +94,34 @@ def _knowledge_plan():
     )
 
 
+def _relaxed_project_plan():
+    return json.dumps(
+        {
+            "intent": "project_qa",
+            "confidence": "90",
+            "equipment": "bearing_test_rig",
+            "missing_fields": [],
+            "clarification_question": "",
+            "reasoning": "look up the test-rig parameter",
+            "plan": [
+                {
+                    "step_id": "retrieve project document",
+                    "tool": "query_rag",
+                    "arguments": {
+                        "query": "",
+                        "equipment": "podded_propulsor_thrust_bearing",
+                        "top_k": "9",
+                        "source_id": "pod_thrust_bearing_plan",
+                    },
+                    "depends_on": [],
+                    "description": "retrieve the source document",
+                }
+            ],
+        },
+        ensure_ascii=False,
+    )
+
+
 def _diagnosis_plan():
     return json.dumps(
         {
@@ -164,7 +192,7 @@ def _observer_clarify():
 
 def _grounded_draft():
     return (
-        "## 综合解释\n\n"
+        "## 直接回答\n\n"
         "外圈缺陷会产生周期性冲击 "
         "[bearing_outer_race_fault#bearing_outer_race_fault_c001]"
     )
@@ -172,7 +200,7 @@ def _grounded_draft():
 
 def _grounded_draft_with_review():
     return (
-        "## 综合解释\n\n"
+        "## 直接回答\n\n"
         "外圈缺陷会产生周期性冲击 "
         "[bearing_outer_race_fault#bearing_outer_race_fault_c001]\n\n"
         "## 现场复核\n\n"
@@ -263,6 +291,42 @@ class AgenticGraphTests(unittest.TestCase):
             result["answer_metadata"]["answer_guard"]["generation_path"],
             "grounded_synthesis",
         )
+        self.assertEqual(len(result["retrieval_hits"]), 3)
+        self.assertEqual(
+            result["retrieval_hits"][0]["chunk_id"],
+            "bearing_outer_race_fault_c001",
+        )
+
+    def test_repairable_project_plan_does_not_retry_or_fall_back(self):
+        with tempfile.TemporaryDirectory() as temp_dir, patch.dict(os.environ, {}, clear=True):
+            settings = self._settings(Path(temp_dir))
+            llm = _FakeLLM([_relaxed_project_plan(), _grounded_draft()])
+            graph = build_agentic_graph(
+                settings,
+                llm=llm,
+                retriever=_FakeRetriever(),
+            )
+            result = graph.invoke(
+                {
+                    "messages": [
+                        HumanMessage(content="What is the test-rig design speed range?")
+                    ],
+                },
+                config={"configurable": {"thread_id": "relaxed_project_plan"}},
+            )
+
+        self.assertEqual(result["planning_metadata"]["generation_path"], "first_pass")
+        self.assertEqual(result["planning_metadata"]["attempts"], 1)
+        self.assertEqual(
+            result["current_plan"]["plan"][0]["tool"],
+            "search_maintenance_knowledge",
+        )
+        self.assertEqual(
+            result["current_plan"]["plan"][0]["arguments"],
+            {"query": "What is the test-rig design speed range?", "top_k": 5},
+        )
+        self.assertEqual(len(llm.calls), 2)
+        self.assertNotIn("规划降级", result["messages"][-1].content)
 
     def test_overclarified_knowledge_question_is_retried_and_searched(self):
         overclarification = json.dumps(
@@ -617,7 +681,7 @@ class AgenticGraphTests(unittest.TestCase):
         )
         self.assertIn("工具观察", result["messages"][-1].content)
         self.assertIn("故障类别", result["messages"][-1].content)
-        self.assertIn("综合解释", result["messages"][-1].content)
+        self.assertIn("直接回答", result["messages"][-1].content)
 
     def test_two_invalid_synthesis_drafts_use_structured_evidence(self):
         with tempfile.TemporaryDirectory() as temp_dir, patch.dict(os.environ, {}, clear=True):
@@ -644,7 +708,8 @@ class AgenticGraphTests(unittest.TestCase):
             )
 
         final = result["messages"][-1]
-        self.assertIn("按证据组织的回答", final.content)
+        self.assertIn("## 直接回答", final.content)
+        self.assertIn("## 补充依据", final.content)
         self.assertIn("周期性冲击", final.content)
         self.assertNotIn("第二版仍然没有引用", final.content)
         self.assertEqual(
@@ -656,7 +721,7 @@ class AgenticGraphTests(unittest.TestCase):
             2,
         )
 
-    def test_unsupported_synthesis_uses_structured_evidence_without_retry(self):
+    def test_unsupported_synthesis_retries_before_structured_evidence(self):
         with tempfile.TemporaryDirectory() as temp_dir, patch.dict(os.environ, {}, clear=True):
             settings = self._settings(Path(temp_dir))
             llm = _FakeLLM(
@@ -666,6 +731,7 @@ class AgenticGraphTests(unittest.TestCase):
                         "外圈缺陷每转只冲击一次 "
                         "[bearing_outer_race_fault#bearing_outer_race_fault_c001]"
                     ),
+                    "第二版仍然没有引用",
                 ]
             )
             graph = build_agentic_graph(
@@ -680,10 +746,10 @@ class AgenticGraphTests(unittest.TestCase):
 
         guard = result["answer_metadata"]["answer_guard"]
         self.assertEqual(guard["generation_path"], "structured_evidence_answer")
-        self.assertEqual(guard["synthesis_attempts"], 1)
-        self.assertEqual(len(guard["synthesis_validations"]), 1)
-        self.assertTrue(guard["synthesis_validation"]["unsupported_claims"])
-        self.assertEqual(len(llm.calls), 2)
+        self.assertEqual(guard["synthesis_attempts"], 2)
+        self.assertEqual(len(guard["synthesis_validations"]), 2)
+        self.assertEqual(guard["synthesis_validation"]["citation_count"], 0)
+        self.assertEqual(len(llm.calls), 3)
 
     def test_invalid_synthesis_is_retried_once_before_success(self):
         with tempfile.TemporaryDirectory() as temp_dir, patch.dict(os.environ, {}, clear=True):
@@ -710,7 +776,7 @@ class AgenticGraphTests(unittest.TestCase):
             )
 
         final = result["messages"][-1]
-        self.assertIn("综合解释", final.content)
+        self.assertIn("直接回答", final.content)
         self.assertNotIn("第一版没有引用", final.content)
         self.assertEqual(
             result["answer_metadata"]["answer_guard"]["generation_path"],

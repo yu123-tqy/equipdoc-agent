@@ -1,0 +1,4380 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-08T07:22:47+00:00",
+  "evaluation_contract": {
+    "scope": "retrieval only; no answer generation or LLM judge",
+    "relevance_level": "reference_doc_ids",
+    "dense_retrieval": false,
+    "lexical_backend": "bm25",
+    "k_values": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "warnings": [
+      "vector DB unavailable; dense retrieval disabled"
+    ]
+  },
+  "inputs": {
+    "eval_count": 100,
+    "eval_sha256": "067dff8219e4ff08a3fe26bfb56d2d347a80aa99a2bca86df3357bf621706c3f",
+    "chunks_sha256": "82cbcd56c2f6c87fd408cefe465b8c87554e171f38b993f1a99992737b5814c7"
+  },
+  "summary": {
+    "overall": {
+      "count": 100,
+      "hit@1": 0.68,
+      "recall@1": 0.4033333333333334,
+      "hit@3": 0.85,
+      "recall@3": 0.605,
+      "hit@5": 0.91,
+      "recall@5": 0.7116666666666667,
+      "hit@10": 0.94,
+      "recall@10": 0.7833333333333333,
+      "mrr@10": 0.7723571428571429
+    },
+    "by_group": {
+      "diagnosis": {
+        "count": 25,
+        "hit@1": 0.44,
+        "recall@1": 0.20666666666666667,
+        "hit@3": 0.68,
+        "recall@3": 0.43333333333333335,
+        "hit@5": 0.76,
+        "recall@5": 0.6066666666666667,
+        "hit@10": 0.8,
+        "recall@10": 0.72,
+        "mrr@10": 0.5703809523809524
+      },
+      "knowledge": {
+        "count": 40,
+        "hit@1": 0.8,
+        "recall@1": 0.5625,
+        "hit@3": 0.9,
+        "recall@3": 0.7,
+        "hit@5": 0.975,
+        "recall@5": 0.775,
+        "hit@10": 1.0,
+        "recall@10": 0.8375,
+        "mrr@10": 0.8614880952380952
+      },
+      "multi_hop": {
+        "count": 20,
+        "hit@1": 0.85,
+        "recall@1": 0.38333333333333336,
+        "hit@3": 0.95,
+        "recall@3": 0.6583333333333333,
+        "hit@5": 0.95,
+        "recall@5": 0.725,
+        "hit@10": 1.0,
+        "recall@10": 0.8166666666666667,
+        "mrr@10": 0.905
+      },
+      "refusal": {
+        "count": 15,
+        "hit@1": 0.5333333333333333,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 0.8666666666666667,
+        "recall@3": 0.5666666666666667,
+        "hit@5": 0.9333333333333333,
+        "recall@5": 0.7,
+        "hit@10": 0.9333333333333333,
+        "recall@10": 0.7,
+        "mrr@10": 0.6944444444444444
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "knowledge_001",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "bearing_inner_race_fault",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "pod_thrust_bearing_plan_ch1",
+        "cwru_dataset_notes",
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c002",
+        "bearing_inner_race_fault_c002",
+        "pod_thrust_bearing_plan_ch5_c028",
+        "bearing_fault_location_patterns_c001",
+        "bearing_ball_fault_c002",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "cwru_dataset_notes_c001",
+        "vibration_signal_features_c002",
+        "bearing_outer_race_fault_c001",
+        "bearing_outer_race_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_002",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "bearing_plastic_deformation_indentation",
+        "bearing_inner_race_fault",
+        "cwru_dataset_notes",
+        "bearing_ball_fault",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c002",
+        "vibration_signal_features_c002",
+        "bearing_cage_fault_c002",
+        "bearing_fault_location_patterns_c001",
+        "bearing_plastic_deformation_indentation_c002",
+        "bearing_inner_race_fault_c001",
+        "cwru_dataset_notes_c001",
+        "bearing_ball_fault_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_outer_race_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_003",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_cage_fault",
+        "bearing_vibration_features_frequencies",
+        "bearing_ball_fault",
+        "motor_faults",
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c002",
+        "bearing_fault_location_patterns_c002",
+        "bearing_cage_fault_c001",
+        "bearing_vibration_features_frequencies_c005",
+        "bearing_ball_fault_c001",
+        "motor_faults_c001",
+        "bearing_outer_race_fault_c001",
+        "maintenance_decision_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_inner_race_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_004",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_vibration_features_frequencies",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch1",
+        "maintenance_decision",
+        "pump_gearbox_faults",
+        "bearing_inner_race_fault",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c001",
+        "bearing_fault_location_patterns_c002",
+        "bearing_terms_and_aliases_c002",
+        "bearing_vibration_features_frequencies_c005",
+        "cwru_dataset_notes_c001",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "maintenance_decision_c002",
+        "pump_gearbox_faults_c002",
+        "bearing_inner_race_fault_c002",
+        "bearing_inner_race_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_005",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_ball_fault"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "cwru_dataset_notes",
+        "bearing_inner_race_fault",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_ball_fault",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c001",
+        "bearing_fault_location_patterns_c003",
+        "bearing_terms_and_aliases_c002",
+        "bearing_outer_race_fault_c001",
+        "maintenance_decision_c002",
+        "cwru_dataset_notes_c001",
+        "bearing_inner_race_fault_c001",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "bearing_ball_fault_c002",
+        "bearing_fault_location_patterns_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_006",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_vibration_features_frequencies",
+        "bearing_failure_taxonomy",
+        "cwru_dataset_notes",
+        "bearing_wear_smearing_seizure",
+        "no_signal_diagnosis_boundary",
+        "bearing_ball_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c001",
+        "bearing_fault_location_patterns_c005",
+        "bearing_terms_and_aliases_c002",
+        "bearing_vibration_features_frequencies_c003",
+        "bearing_failure_taxonomy_c003",
+        "cwru_dataset_notes_c001",
+        "bearing_wear_smearing_seizure_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_ball_fault_c002",
+        "bearing_ball_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_007",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_cage_fault"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "bearing_terms_and_aliases",
+        "bearing_inner_race_fault",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_fault_location_patterns",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c001",
+        "bearing_fault_location_patterns_c004",
+        "bearing_ball_fault_c002",
+        "bearing_outer_race_fault_c001",
+        "maintenance_decision_c002",
+        "bearing_terms_and_aliases_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_cracks_fracture_cage_damage_c004",
+        "bearing_fault_location_patterns_c003",
+        "bearing_fault_location_patterns_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_008",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_cage_fault"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "bearing_cracks_fracture_cage_damage",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_overheating_discoloration",
+        "bearing_basics_and_components",
+        "maintenance_decision",
+        "bearing_cage_fault",
+        "bearing_cage_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c001",
+        "bearing_fault_location_patterns_c003",
+        "bearing_ball_fault_c002",
+        "bearing_cracks_fracture_cage_damage_c002",
+        "pod_thrust_bearing_plan_ch5_c003",
+        "bearing_overheating_discoloration_c003",
+        "bearing_basics_and_components_c004",
+        "maintenance_decision_c002",
+        "bearing_cage_fault_c002",
+        "bearing_cage_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_009",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "vibration_signal_features",
+        "bearing_vibration_features_frequencies",
+        "bearing_ball_fault",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_vibration_measurement_quality",
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_vibration_features_frequencies",
+        "bearing_vibration_features_frequencies"
+      ],
+      "retrieved_chunk_ids": [
+        "vibration_signal_features_c001",
+        "bearing_vibration_features_frequencies_c001",
+        "bearing_ball_fault_c002",
+        "cwru_dataset_notes_c001",
+        "pod_thrust_bearing_plan_ch5_c026",
+        "bearing_vibration_measurement_quality_c001",
+        "bearing_outer_race_fault_c002",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_vibration_features_frequencies_c002",
+        "bearing_vibration_features_frequencies_c005"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_010",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "vibration_signal_features",
+        "bearing_fault_location_patterns",
+        "bearing_vibration_features_frequencies",
+        "motor_faults",
+        "bearing_envelope_order_tracking",
+        "bearing_outer_race_fault",
+        "bearing_vibration_measurement_quality",
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "vibration_signal_features_c001",
+        "bearing_fault_location_patterns_c002",
+        "bearing_vibration_features_frequencies_c002",
+        "motor_faults_c001",
+        "bearing_envelope_order_tracking_c001",
+        "bearing_outer_race_fault_c001",
+        "bearing_vibration_measurement_quality_c001",
+        "bearing_inner_race_fault_c002",
+        "bearing_fault_location_patterns_c001",
+        "bearing_fault_location_patterns_c005"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_011",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "bearing_vibration_features_frequencies",
+        "vibration_signal_features",
+        "ball_bearing_types",
+        "bearing_ball_fault",
+        "bearing_load_life_and_limits",
+        "bearing_rolling_contact_fatigue",
+        "bearing_wear_smearing_seizure",
+        "bearing_vibration_features_frequencies",
+        "bearing_vibration_features_frequencies"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c001",
+        "bearing_vibration_features_frequencies_c005",
+        "vibration_signal_features_c001",
+        "ball_bearing_types_c002",
+        "bearing_ball_fault_c001",
+        "bearing_load_life_and_limits_c005",
+        "bearing_rolling_contact_fatigue_c003",
+        "bearing_wear_smearing_seizure_c003",
+        "bearing_vibration_features_frequencies_c002",
+        "bearing_vibration_features_frequencies_c004"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "knowledge_012",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "motor_faults",
+        "pod_thrust_bearing_plan_ch1",
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "bearing_symptom_troubleshooting_matrix",
+        "bearing_fault_severity_trending",
+        "bearing_overheating_discoloration",
+        "vibration_signal_features",
+        "motor_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c002",
+        "motor_faults_c002",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "vibration_signal_features_c003",
+        "bearing_outer_race_fault_c003",
+        "bearing_symptom_troubleshooting_matrix_c001",
+        "bearing_fault_severity_trending_c001",
+        "bearing_overheating_discoloration_c001",
+        "vibration_signal_features_c002",
+        "motor_faults_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.25
+      }
+    },
+    {
+      "id": "knowledge_013",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "cwru_dataset_notes"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch3",
+        "cwru_bearing_dataset_boundaries",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "ball_bearing_types",
+        "bearing_lubrication_management",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "cwru_bearing_dataset_boundaries_c005",
+        "pod_thrust_bearing_plan_ch5_c055",
+        "pod_thrust_bearing_plan_ch2_c001",
+        "pod_thrust_bearing_plan_ch4_c017",
+        "ball_bearing_types_c003",
+        "bearing_lubrication_management_c002",
+        "cwru_dataset_notes_c002",
+        "cwru_bearing_dataset_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_014",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "cwru_dataset_notes"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "bearing_rag_answer_boundaries",
+        "cwru_bearing_dataset_boundaries",
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_dataset_labeling_validation",
+        "pod_thrust_bearing_plan_ch2",
+        "equipment_temperature_checks",
+        "bearing_fault_severity_trending",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c002",
+        "bearing_rag_answer_boundaries_c005",
+        "cwru_bearing_dataset_boundaries_c004",
+        "pod_thrust_bearing_plan_ch6_c041",
+        "bearing_dataset_labeling_validation_c003",
+        "pod_thrust_bearing_plan_ch2_c012",
+        "equipment_temperature_checks_c001",
+        "bearing_fault_severity_trending_c001",
+        "cwru_dataset_notes_c001",
+        "cwru_bearing_dataset_boundaries_c005"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_015",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "motor_faults",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_dataset_labeling_validation",
+        "pod_thrust_bearing_plan_ch2",
+        "cwru_bearing_dataset_boundaries",
+        "cwru_dataset_notes"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c002",
+        "cwru_bearing_dataset_boundaries_c004",
+        "bearing_rag_answer_boundaries_c002",
+        "no_signal_diagnosis_boundary_c001",
+        "motor_faults_c002",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "bearing_dataset_labeling_validation_c004",
+        "pod_thrust_bearing_plan_ch2_c001",
+        "cwru_bearing_dataset_boundaries_c003",
+        "cwru_dataset_notes_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_016",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules",
+        "bearing_sealing_contamination_storage",
+        "bearing_rag_answer_boundaries",
+        "bearing_maintenance_decision_actions",
+        "vibration_signal_features",
+        "bearing_evidence_preservation",
+        "bearing_cage_fault",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c001",
+        "rag_safety_rules_c003",
+        "bearing_sealing_contamination_storage_c003",
+        "bearing_rag_answer_boundaries_c004",
+        "bearing_maintenance_decision_actions_c006",
+        "vibration_signal_features_c002",
+        "bearing_evidence_preservation_c005",
+        "bearing_cage_fault_c002",
+        "maintenance_decision_c003",
+        "maintenance_decision_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_017",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "bearing_maintenance_decision_actions",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_ball_fault",
+        "bearing_rag_answer_boundaries",
+        "bearing_fault_severity_trending",
+        "bearing_maintenance_decision_actions",
+        "bearing_dataset_labeling_validation"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c003",
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_maintenance_decision_actions_c001",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_ball_fault_c003",
+        "bearing_rag_answer_boundaries_c005",
+        "bearing_fault_severity_trending_c001",
+        "bearing_maintenance_decision_actions_c002",
+        "bearing_dataset_labeling_validation_c004"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "knowledge_018",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "motor_faults",
+        "rag_safety_rules",
+        "pipeline_leakage_notes",
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "pump_gearbox_faults",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c003",
+        "bearing_inner_race_fault_c002",
+        "motor_faults_c002",
+        "rag_safety_rules_c002",
+        "pipeline_leakage_notes_c002",
+        "vibration_signal_features_c002",
+        "bearing_outer_race_fault_c003",
+        "pump_gearbox_faults_c003",
+        "maintenance_decision_c001",
+        "rag_safety_rules_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_019",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "motor_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "motor_faults",
+        "pump_gearbox_faults",
+        "bearing_wear_smearing_seizure",
+        "equipment_temperature_checks",
+        "battery_thermal_monitoring",
+        "bearing_maintenance_decision_actions",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_fault_severity_trending",
+        "motor_faults",
+        "equipment_temperature_checks"
+      ],
+      "retrieved_chunk_ids": [
+        "motor_faults_c002",
+        "pump_gearbox_faults_c001",
+        "bearing_wear_smearing_seizure_c003",
+        "equipment_temperature_checks_c001",
+        "battery_thermal_monitoring_c001",
+        "bearing_maintenance_decision_actions_c001",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "bearing_fault_severity_trending_c005",
+        "motor_faults_c001",
+        "equipment_temperature_checks_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_020",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "motor_faults",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "motor_faults",
+        "pump_gearbox_faults",
+        "pipeline_leakage_notes",
+        "bearing_vibration_measurement_quality",
+        "bearing_symptom_troubleshooting_matrix",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_mounting_fits_alignment",
+        "bearing_dataset_labeling_validation",
+        "motor_faults",
+        "pump_gearbox_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "motor_faults_c001",
+        "pump_gearbox_faults_c001",
+        "pipeline_leakage_notes_c002",
+        "bearing_vibration_measurement_quality_c001",
+        "bearing_symptom_troubleshooting_matrix_c001",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_mounting_fits_alignment_c004",
+        "bearing_dataset_labeling_validation_c003",
+        "motor_faults_c002",
+        "pump_gearbox_faults_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_021",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "pump_gearbox_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "pump_gearbox_faults",
+        "pipeline_leakage_notes",
+        "bearing_multimodal_condition_monitoring",
+        "bearing_rag_answer_boundaries",
+        "bearing_load_life_and_limits",
+        "bearing_arrangements_clearance_preload",
+        "bearing_mounting_fits_alignment",
+        "pump_gearbox_faults",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c002",
+        "pump_gearbox_faults_c003",
+        "pipeline_leakage_notes_c002",
+        "bearing_multimodal_condition_monitoring_c005",
+        "bearing_rag_answer_boundaries_c005",
+        "bearing_load_life_and_limits_c005",
+        "bearing_arrangements_clearance_preload_c004",
+        "bearing_mounting_fits_alignment_c002",
+        "pump_gearbox_faults_c001",
+        "bearing_rag_answer_boundaries_c004"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "knowledge_022",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "pump_gearbox_faults"
+      ],
+      "retrieved_doc_ids": [
+        "pump_gearbox_faults",
+        "bearing_materials_cages_seals",
+        "pod_thrust_bearing_plan_ch2",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_terms_and_aliases",
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch6",
+        "pump_gearbox_faults",
+        "pump_gearbox_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "pump_gearbox_faults_c001",
+        "bearing_materials_cages_seals_c005",
+        "pod_thrust_bearing_plan_ch2_c004",
+        "test_rig_technical_spec_c010",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_terms_and_aliases_c002",
+        "bearing_outer_race_fault_c003",
+        "pod_thrust_bearing_plan_ch6_c011",
+        "pump_gearbox_faults_c002",
+        "pump_gearbox_faults_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_023",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "pipeline_leakage_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "vibration_signal_features",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_index",
+        "pipeline_leakage_notes",
+        "pipeline_leakage_notes"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "vibration_signal_features_c001",
+        "pod_thrust_bearing_plan_ch5_c051",
+        "pod_thrust_bearing_plan_ch6_c061",
+        "pod_thrust_bearing_plan_ch2_c013",
+        "pod_thrust_bearing_plan_ch4_c016",
+        "bearing_rag_answer_boundaries_c003",
+        "pod_thrust_bearing_plan_index_c010",
+        "pipeline_leakage_notes_c001",
+        "pipeline_leakage_notes_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_024",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "pipeline_leakage_notes"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_low_speed_heavy_load_monitoring",
+        "bearing_cage_fault",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_multimodal_condition_monitoring",
+        "pipeline_leakage_notes",
+        "pipeline_leakage_notes"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c001",
+        "pod_thrust_bearing_plan_ch2_c013",
+        "pod_thrust_bearing_plan_ch4_c017",
+        "bearing_low_speed_heavy_load_monitoring_c001",
+        "bearing_cage_fault_c001",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "pod_thrust_bearing_plan_ch1_c009",
+        "bearing_multimodal_condition_monitoring_c004",
+        "pipeline_leakage_notes_c003",
+        "pipeline_leakage_notes_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_025",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "equipment_temperature_checks",
+        "bearing_evidence_preservation",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_maintenance_decision_actions",
+        "rag_safety_rules",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c002",
+        "maintenance_decision_c003",
+        "bearing_rag_answer_boundaries_c002",
+        "no_signal_diagnosis_boundary_c003",
+        "equipment_temperature_checks_c004",
+        "bearing_evidence_preservation_c001",
+        "cwru_bearing_dataset_boundaries_c002",
+        "bearing_maintenance_decision_actions_c001",
+        "rag_safety_rules_c001",
+        "rag_safety_rules_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_026",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "motor_faults",
+        "bearing_dataset_labeling_validation",
+        "pod_thrust_bearing_plan_ch2",
+        "battery_thermal_monitoring",
+        "pod_thrust_bearing_plan_ch4",
+        "rag_safety_rules",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c002",
+        "no_signal_diagnosis_boundary_c001",
+        "motor_faults_c002",
+        "bearing_dataset_labeling_validation_c003",
+        "pod_thrust_bearing_plan_ch2_c005",
+        "battery_thermal_monitoring_c002",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "rag_safety_rules_c002",
+        "rag_safety_rules_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_027",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_cage_fault",
+        "bearing_ball_fault",
+        "bearing_inner_race_fault",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "no_signal_diagnosis_boundary",
+        "bearing_fault_severity_trending",
+        "bearing_cage_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "bearing_cage_fault_c003",
+        "bearing_ball_fault_c003",
+        "bearing_inner_race_fault_c003",
+        "maintenance_decision_c002",
+        "bearing_outer_race_fault_c003",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_fault_severity_trending_c003",
+        "bearing_cage_fault_c001",
+        "bearing_ball_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_028",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "vibration_signal_features",
+        "bearing_vibration_features_frequencies",
+        "bearing_low_speed_heavy_load_monitoring",
+        "bearing_fault_severity_trending",
+        "bearing_multimodal_condition_monitoring",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_inner_race_fault",
+        "pod_thrust_bearing_plan_ch5",
+        "vibration_signal_features",
+        "vibration_signal_features"
+      ],
+      "retrieved_chunk_ids": [
+        "vibration_signal_features_c003",
+        "bearing_vibration_features_frequencies_c005",
+        "bearing_low_speed_heavy_load_monitoring_c005",
+        "bearing_fault_severity_trending_c001",
+        "bearing_multimodal_condition_monitoring_c003",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_inner_race_fault_c003",
+        "pod_thrust_bearing_plan_ch5_c018",
+        "vibration_signal_features_c002",
+        "vibration_signal_features_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_029",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch1",
+        "maintenance_decision",
+        "equipment_temperature_checks",
+        "no_signal_diagnosis_boundary",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch2"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "pod_thrust_bearing_plan_ch4_c006",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "pod_thrust_bearing_plan_ch1_c009",
+        "maintenance_decision_c001",
+        "equipment_temperature_checks_c001",
+        "no_signal_diagnosis_boundary_c003",
+        "pod_thrust_bearing_plan_ch3_c001",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "pod_thrust_bearing_plan_ch2_c012"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_030",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "cwru_dataset_notes",
+        "bearing_outer_race_fault",
+        "bearing_dataset_labeling_validation",
+        "maintenance_decision",
+        "bearing_evidence_preservation",
+        "vibration_signal_features",
+        "motor_faults",
+        "bearing_inner_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c002",
+        "cwru_dataset_notes_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_dataset_labeling_validation_c004",
+        "maintenance_decision_c001",
+        "bearing_evidence_preservation_c005",
+        "vibration_signal_features_c002",
+        "motor_faults_c002",
+        "bearing_inner_race_fault_c003",
+        "bearing_outer_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "knowledge_031",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "bearing_vibration_features_frequencies",
+        "bearing_fault_location_patterns",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_inner_race_fault",
+        "bearing_ball_fault",
+        "motor_faults",
+        "vibration_signal_features",
+        "bearing_vibration_features_frequencies"
+      ],
+      "retrieved_chunk_ids": [
+        "vibration_signal_features_c001",
+        "bearing_outer_race_fault_c001",
+        "bearing_vibration_features_frequencies_c005",
+        "bearing_fault_location_patterns_c001",
+        "pod_thrust_bearing_plan_ch5_c001",
+        "bearing_inner_race_fault_c002",
+        "bearing_ball_fault_c001",
+        "motor_faults_c001",
+        "vibration_signal_features_c002",
+        "bearing_vibration_features_frequencies_c004"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_032",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "rag_safety_rules",
+        "bearing_materials_cages_seals",
+        "bearing_rag_answer_boundaries",
+        "bearing_cracks_fracture_cage_damage",
+        "maintenance_decision",
+        "bearing_family_scope",
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c002",
+        "bearing_fault_location_patterns_c004",
+        "rag_safety_rules_c003",
+        "bearing_materials_cages_seals_c005",
+        "bearing_rag_answer_boundaries_c001",
+        "bearing_cracks_fracture_cage_damage_c004",
+        "maintenance_decision_c002",
+        "bearing_family_scope_c003",
+        "bearing_cage_fault_c001",
+        "bearing_fault_location_patterns_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_033",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision",
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_sealing_contamination_storage",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_basics_and_components",
+        "bearing_ball_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c002",
+        "maintenance_decision_c002",
+        "bearing_cage_fault_c002",
+        "bearing_fault_location_patterns_c003",
+        "bearing_terms_and_aliases_c002",
+        "bearing_sealing_contamination_storage_c004",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "bearing_basics_and_components_c001",
+        "bearing_ball_fault_c003",
+        "bearing_ball_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_034",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "bearing_inner_race_fault",
+        "vibration_signal_features",
+        "bearing_basics_and_components",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_maintenance_decision_actions",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c002",
+        "bearing_outer_race_fault_c003",
+        "bearing_inner_race_fault_c001",
+        "vibration_signal_features_c002",
+        "bearing_basics_and_components_c001",
+        "bearing_fault_location_patterns_c005",
+        "bearing_terms_and_aliases_c002",
+        "bearing_maintenance_decision_actions_c004",
+        "bearing_outer_race_fault_c002",
+        "bearing_outer_race_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_035",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "bearing_basics_and_components",
+        "cwru_dataset_notes",
+        "bearing_type_selection",
+        "bearing_outer_race_fault",
+        "bearing_inner_race_fault",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_fault_location_patterns_c003",
+        "bearing_terms_and_aliases_c002",
+        "bearing_basics_and_components_c001",
+        "cwru_dataset_notes_c001",
+        "bearing_type_selection_c004",
+        "bearing_outer_race_fault_c003",
+        "bearing_inner_race_fault_c003",
+        "bearing_inner_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_036",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch4",
+        "no_signal_diagnosis_boundary",
+        "bearing_maintenance_decision_actions",
+        "pod_thrust_bearing_plan_ch2",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_cage_fault",
+        "vibration_signal_features",
+        "bearing_envelope_order_tracking"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch4_c004",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_maintenance_decision_actions_c001",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "bearing_cage_fault_c003",
+        "vibration_signal_features_c002",
+        "bearing_envelope_order_tracking_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.2
+      }
+    },
+    {
+      "id": "knowledge_037",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "maintenance_decision",
+        "pump_gearbox_faults",
+        "pipeline_leakage_notes",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_outer_race_fault",
+        "cwru_bearing_dataset_boundaries",
+        "rag_safety_rules",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "pump_gearbox_faults_c003",
+        "pipeline_leakage_notes_c002",
+        "bearing_rag_answer_boundaries_c001",
+        "pod_thrust_bearing_plan_ch6_c024",
+        "bearing_outer_race_fault_c003",
+        "cwru_bearing_dataset_boundaries_c005",
+        "rag_safety_rules_c001",
+        "rag_safety_rules_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "knowledge_038",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "no_signal_diagnosis_boundary",
+        "bearing_dataset_labeling_validation",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_ch6",
+        "pipeline_leakage_notes",
+        "maintenance_decision",
+        "bearing_evidence_preservation",
+        "bearing_rag_answer_boundaries",
+        "motor_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_dataset_labeling_validation_c004",
+        "bearing_rag_answer_boundaries_c003",
+        "pod_thrust_bearing_plan_ch6_c020",
+        "pipeline_leakage_notes_c002",
+        "maintenance_decision_c001",
+        "bearing_evidence_preservation_c005",
+        "bearing_rag_answer_boundaries_c002",
+        "motor_faults_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.14285714285714285
+      }
+    },
+    {
+      "id": "knowledge_039",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries",
+        "no_signal_diagnosis_boundary",
+        "bearing_vibration_measurement_quality",
+        "vibration_signal_features",
+        "bearing_low_speed_heavy_load_monitoring",
+        "maintenance_decision",
+        "equipment_temperature_checks",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_low_speed_heavy_load_monitoring"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c002",
+        "cwru_bearing_dataset_boundaries_c002",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_vibration_measurement_quality_c004",
+        "vibration_signal_features_c003",
+        "bearing_low_speed_heavy_load_monitoring_c001",
+        "maintenance_decision_c001",
+        "equipment_temperature_checks_c001",
+        "cwru_bearing_dataset_boundaries_c001",
+        "bearing_low_speed_heavy_load_monitoring_c004"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.2
+      }
+    },
+    {
+      "id": "knowledge_040",
+      "group": "knowledge",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "bearing_load_life_and_limits",
+        "no_signal_diagnosis_boundary",
+        "bearing_fault_severity_trending",
+        "thrust_and_axial_bearings",
+        "bearing_outer_race_fault",
+        "bearing_type_selection",
+        "bearing_rag_answer_boundaries",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c002",
+        "bearing_rag_answer_boundaries_c005",
+        "bearing_load_life_and_limits_c005",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_fault_severity_trending_c005",
+        "thrust_and_axial_bearings_c005",
+        "bearing_outer_race_fault_c003",
+        "bearing_type_selection_c005",
+        "bearing_rag_answer_boundaries_c004",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_001",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "no_signal_diagnosis_boundary",
+        "bearing_maintenance_decision_actions",
+        "motor_faults",
+        "bearing_inner_race_fault",
+        "pipeline_leakage_notes",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_maintenance_decision_actions_c001",
+        "motor_faults_c002",
+        "bearing_inner_race_fault_c003",
+        "pipeline_leakage_notes_c003",
+        "maintenance_decision_c003",
+        "maintenance_decision_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_002",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "no_signal_diagnosis_boundary",
+        "pipeline_leakage_notes",
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_rag_answer_boundaries",
+        "motor_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "pipeline_leakage_notes_c002",
+        "vibration_signal_features_c002",
+        "bearing_outer_race_fault_c003",
+        "bearing_rag_answer_boundaries_c002",
+        "rag_safety_rules_c001",
+        "maintenance_decision_c003",
+        "bearing_rag_answer_boundaries_c003",
+        "motor_faults_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.25
+      }
+    },
+    {
+      "id": "diagnosis_003",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "vibration_signal_features",
+        "bearing_inner_race_fault",
+        "cwru_dataset_notes",
+        "pump_gearbox_faults",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "maintenance_decision_c001",
+        "rag_safety_rules_c002",
+        "bearing_rag_answer_boundaries_c005",
+        "vibration_signal_features_c002",
+        "bearing_inner_race_fault_c003",
+        "cwru_dataset_notes_c001",
+        "pump_gearbox_faults_c003",
+        "maintenance_decision_c003",
+        "rag_safety_rules_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_004",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "cwru_dataset_notes",
+        "rag_safety_rules",
+        "bearing_dataset_labeling_validation",
+        "bearing_rag_answer_boundaries",
+        "bearing_maintenance_decision_actions",
+        "no_signal_diagnosis_boundary",
+        "bearing_multimodal_condition_monitoring",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c001",
+        "cwru_dataset_notes_c001",
+        "rag_safety_rules_c003",
+        "bearing_dataset_labeling_validation_c004",
+        "bearing_rag_answer_boundaries_c005",
+        "bearing_maintenance_decision_actions_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_multimodal_condition_monitoring_c005",
+        "maintenance_decision_c003",
+        "maintenance_decision_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_005",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_vibration_features_frequencies",
+        "bearing_cage_fault",
+        "bearing_ball_fault",
+        "pump_gearbox_faults",
+        "bearing_outer_race_fault",
+        "motor_faults",
+        "bearing_inner_race_fault",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c001",
+        "bearing_fault_location_patterns_c002",
+        "bearing_vibration_features_frequencies_c005",
+        "bearing_cage_fault_c002",
+        "bearing_ball_fault_c001",
+        "pump_gearbox_faults_c001",
+        "bearing_outer_race_fault_c001",
+        "motor_faults_c001",
+        "bearing_inner_race_fault_c002",
+        "bearing_inner_race_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_006",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "bearing_inner_race_fault",
+        "bearing_dataset_labeling_validation",
+        "bearing_maintenance_decision_actions",
+        "bearing_ball_fault",
+        "pump_gearbox_faults",
+        "no_signal_diagnosis_boundary",
+        "bearing_maintenance_decision_actions",
+        "pipeline_leakage_notes"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_inner_race_fault_c003",
+        "bearing_dataset_labeling_validation_c004",
+        "bearing_maintenance_decision_actions_c001",
+        "bearing_ball_fault_c002",
+        "pump_gearbox_faults_c002",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_maintenance_decision_actions_c005",
+        "pipeline_leakage_notes_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_007",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "bearing_ball_fault",
+        "bearing_fault_location_patterns",
+        "pipeline_leakage_notes",
+        "maintenance_decision",
+        "bearing_dataset_labeling_validation",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "bearing_ball_fault",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "bearing_ball_fault_c002",
+        "bearing_fault_location_patterns_c003",
+        "pipeline_leakage_notes_c002",
+        "maintenance_decision_c001",
+        "bearing_dataset_labeling_validation_c004",
+        "bearing_rag_answer_boundaries_c005",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_ball_fault_c001",
+        "bearing_fault_location_patterns_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "diagnosis_008",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "no_signal_diagnosis_boundary",
+        "bearing_ball_fault",
+        "rag_safety_rules",
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "bearing_cage_fault",
+        "maintenance_decision",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_ball_fault_c003",
+        "rag_safety_rules_c002",
+        "bearing_outer_race_fault_c003",
+        "vibration_signal_features_c002",
+        "bearing_cage_fault_c003",
+        "maintenance_decision_c002",
+        "bearing_fault_location_patterns_c003",
+        "bearing_ball_fault_c001",
+        "bearing_ball_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "diagnosis_009",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_rag_answer_boundaries",
+        "pipeline_leakage_notes",
+        "bearing_dataset_labeling_validation",
+        "cwru_dataset_notes",
+        "bearing_ball_fault",
+        "bearing_outer_race_fault",
+        "bearing_rag_answer_boundaries",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "bearing_rag_answer_boundaries_c005",
+        "pipeline_leakage_notes_c002",
+        "bearing_dataset_labeling_validation_c004",
+        "cwru_dataset_notes_c001",
+        "bearing_ball_fault_c002",
+        "bearing_outer_race_fault_c003",
+        "bearing_rag_answer_boundaries_c003",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_010",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules",
+        "bearing_cage_fault",
+        "bearing_outer_race_fault",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_maintenance_decision_actions",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c002",
+        "rag_safety_rules_c003",
+        "bearing_cage_fault_c003",
+        "bearing_outer_race_fault_c003",
+        "bearing_cracks_fracture_cage_damage_c005",
+        "bearing_maintenance_decision_actions_c005",
+        "bearing_fault_location_patterns_c004",
+        "bearing_ball_fault_c001",
+        "maintenance_decision_c001",
+        "maintenance_decision_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_011",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "pump_gearbox_faults",
+        "motor_faults",
+        "no_signal_diagnosis_boundary",
+        "pipeline_leakage_notes",
+        "maintenance_decision",
+        "bearing_evidence_preservation",
+        "rag_safety_rules",
+        "vibration_signal_features",
+        "maintenance_decision",
+        "no_signal_diagnosis_boundary"
+      ],
+      "retrieved_chunk_ids": [
+        "pump_gearbox_faults_c003",
+        "motor_faults_c002",
+        "no_signal_diagnosis_boundary_c002",
+        "pipeline_leakage_notes_c002",
+        "maintenance_decision_c001",
+        "bearing_evidence_preservation_c005",
+        "rag_safety_rules_c003",
+        "vibration_signal_features_c002",
+        "maintenance_decision_c003",
+        "no_signal_diagnosis_boundary_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.2
+      }
+    },
+    {
+      "id": "diagnosis_012",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "no_signal_diagnosis_boundary",
+        "bearing_dataset_labeling_validation",
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_rag_answer_boundaries",
+        "bearing_evidence_preservation",
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_dataset_labeling_validation_c004",
+        "pod_thrust_bearing_plan_ch6_c020",
+        "bearing_rag_answer_boundaries_c005",
+        "bearing_evidence_preservation_c005",
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "bearing_rag_answer_boundaries_c003",
+        "pod_thrust_bearing_plan_ch6_c060"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.14285714285714285
+      }
+    },
+    {
+      "id": "diagnosis_013",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "bearing_failure_analysis_workflow",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_fault_location_patterns",
+        "pump_gearbox_faults",
+        "bearing_inner_race_fault",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "vibration_signal_features_c002",
+        "bearing_failure_analysis_workflow_c006",
+        "cwru_dataset_notes_c001",
+        "cwru_bearing_dataset_boundaries_c005",
+        "bearing_fault_location_patterns_c005",
+        "pump_gearbox_faults_c003",
+        "bearing_inner_race_fault_c001",
+        "bearing_outer_race_fault_c001",
+        "bearing_outer_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "diagnosis_014",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "pod_thrust_bearing_plan_ch2",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch3",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "bearing_rag_answer_boundaries_c006",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "cwru_dataset_notes_c002",
+        "pod_thrust_bearing_plan_ch3_c003",
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "diagnosis_015",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "pod_thrust_bearing_plan_ch2",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch3",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "bearing_rag_answer_boundaries_c006",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "cwru_dataset_notes_c002",
+        "pod_thrust_bearing_plan_ch3_c003",
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "diagnosis_016",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "pod_thrust_bearing_plan_ch2",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch3",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "bearing_rag_answer_boundaries_c006",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "cwru_dataset_notes_c002",
+        "pod_thrust_bearing_plan_ch3_c003",
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "diagnosis_017",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "bearing_terms_and_aliases",
+        "pod_thrust_bearing_plan_ch2",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "bearing_rag_answer_boundaries_c006",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "bearing_terms_and_aliases_c001",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "cwru_dataset_notes_c002",
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "diagnosis_018",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "cwru_dataset_notes",
+        "pipeline_leakage_notes",
+        "cwru_bearing_dataset_boundaries",
+        "maintenance_decision",
+        "no_signal_diagnosis_boundary",
+        "pump_gearbox_faults",
+        "bearing_rag_answer_boundaries",
+        "cwru_dataset_notes",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "cwru_dataset_notes_c002",
+        "pipeline_leakage_notes_c002",
+        "cwru_bearing_dataset_boundaries_c005",
+        "maintenance_decision_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "pump_gearbox_faults_c003",
+        "bearing_rag_answer_boundaries_c005",
+        "cwru_dataset_notes_c001",
+        "bearing_inner_race_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_019",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "bearing_inner_race_fault",
+        "bearing_ball_fault",
+        "maintenance_decision",
+        "bearing_cage_fault",
+        "bearing_maintenance_decision_actions",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "vibration_signal_features_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_ball_fault_c001",
+        "maintenance_decision_c002",
+        "bearing_cage_fault_c001",
+        "bearing_maintenance_decision_actions_c001",
+        "bearing_cracks_fracture_cage_damage_c005",
+        "bearing_outer_race_fault_c001",
+        "bearing_outer_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_020",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "maintenance_decision",
+        "motor_faults",
+        "bearing_rag_answer_boundaries",
+        "bearing_cage_fault",
+        "bearing_inner_race_fault",
+        "no_signal_diagnosis_boundary",
+        "bearing_ball_fault",
+        "rag_safety_rules",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "motor_faults_c002",
+        "bearing_rag_answer_boundaries_c004",
+        "bearing_cage_fault_c002",
+        "bearing_inner_race_fault_c002",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_ball_fault_c003",
+        "rag_safety_rules_c002",
+        "rag_safety_rules_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "diagnosis_021",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_bearing_dataset_boundaries",
+        "pipeline_leakage_notes",
+        "cwru_dataset_notes",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "pod_thrust_bearing_plan_ch2",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_bearing_dataset_boundaries_c005",
+        "pipeline_leakage_notes_c002",
+        "cwru_dataset_notes_c002",
+        "bearing_rag_answer_boundaries_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "pod_thrust_bearing_plan_ch2_c003",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "cwru_dataset_notes_c001",
+        "cwru_bearing_dataset_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "diagnosis_022",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_bearing_dataset_boundaries",
+        "bearing_rag_answer_boundaries",
+        "cwru_dataset_notes",
+        "bearing_dataset_labeling_validation",
+        "rag_safety_rules",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_failure_taxonomy",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_bearing_dataset_boundaries_c005",
+        "bearing_rag_answer_boundaries_c005",
+        "cwru_dataset_notes_c001",
+        "bearing_dataset_labeling_validation_c003",
+        "rag_safety_rules_c002",
+        "pod_thrust_bearing_plan_ch6_c041",
+        "pod_thrust_bearing_plan_ch1_c018",
+        "bearing_failure_taxonomy_c004",
+        "cwru_dataset_notes_c002",
+        "cwru_bearing_dataset_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "diagnosis_023",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "vibration_signal_features",
+        "pump_gearbox_faults",
+        "bearing_failure_taxonomy",
+        "pod_thrust_bearing_plan_ch2",
+        "maintenance_decision",
+        "bearing_rag_answer_boundaries",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "rag_safety_rules_c003",
+        "bearing_rag_answer_boundaries_c001",
+        "vibration_signal_features_c002",
+        "pump_gearbox_faults_c003",
+        "bearing_failure_taxonomy_c002",
+        "pod_thrust_bearing_plan_ch2_c002",
+        "maintenance_decision_c001",
+        "bearing_rag_answer_boundaries_c002",
+        "bearing_rag_answer_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "diagnosis_024",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "motor_faults",
+        "bearing_inner_race_fault",
+        "pipeline_leakage_notes",
+        "bearing_cage_fault",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules",
+        "bearing_inner_race_fault",
+        "bearing_cage_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "motor_faults_c002",
+        "bearing_inner_race_fault_c003",
+        "pipeline_leakage_notes_c003",
+        "bearing_cage_fault_c002",
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_rag_answer_boundaries_c006",
+        "rag_safety_rules_c003",
+        "bearing_inner_race_fault_c002",
+        "bearing_cage_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.3333333333333333,
+        "hit@5": 1.0,
+        "recall@5": 0.6666666666666666,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "diagnosis_025",
+      "group": "diagnosis",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch3",
+        "cwru_dataset_notes",
+        "maintenance_decision",
+        "bearing_terms_and_aliases",
+        "bearing_baseline_alarm_strategy",
+        "bearing_low_speed_heavy_load_monitoring",
+        "rag_safety_rules",
+        "bearing_cage_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "bearing_outer_race_fault_c003",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "cwru_dataset_notes_c002",
+        "maintenance_decision_c001",
+        "bearing_terms_and_aliases_c001",
+        "bearing_baseline_alarm_strategy_c005",
+        "bearing_low_speed_heavy_load_monitoring_c004",
+        "rag_safety_rules_c002",
+        "bearing_cage_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_001",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "maintenance_decision",
+        "no_signal_diagnosis_boundary",
+        "bearing_inner_race_fault",
+        "rag_safety_rules",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "vibration_signal_features_c002",
+        "maintenance_decision_c002",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_inner_race_fault_c002",
+        "rag_safety_rules_c002",
+        "bearing_fault_location_patterns_c002",
+        "bearing_ball_fault_c001",
+        "bearing_outer_race_fault_c002",
+        "bearing_outer_race_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_002",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "bearing_outer_race_fault",
+        "cwru_dataset_notes",
+        "bearing_ball_fault",
+        "bearing_maintenance_decision_actions",
+        "motor_faults",
+        "bearing_cage_fault",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c001",
+        "bearing_inner_race_fault_c003",
+        "bearing_outer_race_fault_c003",
+        "cwru_dataset_notes_c001",
+        "bearing_ball_fault_c003",
+        "bearing_maintenance_decision_actions_c001",
+        "motor_faults_c001",
+        "bearing_cage_fault_c003",
+        "maintenance_decision_c002",
+        "maintenance_decision_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_003",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "bearing_outer_race_fault",
+        "bearing_lubrication_management",
+        "bearing_fault_location_patterns",
+        "cwru_dataset_notes",
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "bearing_maintenance_decision_actions",
+        "bearing_ball_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c002",
+        "bearing_outer_race_fault_c003",
+        "bearing_lubrication_management_c006",
+        "bearing_fault_location_patterns_c003",
+        "cwru_dataset_notes_c001",
+        "maintenance_decision_c001",
+        "bearing_inner_race_fault_c003",
+        "bearing_maintenance_decision_actions_c001",
+        "bearing_ball_fault_c003",
+        "bearing_ball_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_004",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "maintenance_decision",
+        "bearing_basics_and_components",
+        "bearing_overheating_discoloration",
+        "bearing_cracks_fracture_cage_damage",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_cage_fault",
+        "bearing_cage_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c001",
+        "bearing_fault_location_patterns_c004",
+        "maintenance_decision_c002",
+        "bearing_basics_and_components_c004",
+        "bearing_overheating_discoloration_c002",
+        "bearing_cracks_fracture_cage_damage_c004",
+        "pod_thrust_bearing_plan_ch1_c009",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "bearing_cage_fault_c002",
+        "bearing_cage_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_005",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "maintenance_decision",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_dataset_labeling_validation",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_rag_answer_boundaries",
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch6",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c002",
+        "maintenance_decision_c001",
+        "cwru_bearing_dataset_boundaries_c005",
+        "bearing_dataset_labeling_validation_c003",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "bearing_rag_answer_boundaries_c005",
+        "pipeline_leakage_notes_c002",
+        "pod_thrust_bearing_plan_ch6_c062",
+        "cwru_dataset_notes_c001",
+        "cwru_bearing_dataset_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_006",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "motor_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "rag_safety_rules",
+        "no_signal_diagnosis_boundary",
+        "motor_faults",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch2",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_inner_race_fault",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c001",
+        "rag_safety_rules_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "motor_faults_c002",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "pod_thrust_bearing_plan_ch2_c004",
+        "cwru_bearing_dataset_boundaries_c001",
+        "bearing_inner_race_fault_c001",
+        "bearing_outer_race_fault_c003",
+        "bearing_outer_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 0.6666666666666666,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_007",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "pump_gearbox_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "no_signal_diagnosis_boundary",
+        "bearing_fault_location_patterns",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_cage_fault",
+        "bearing_ball_fault",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c003",
+        "rag_safety_rules_c001",
+        "pump_gearbox_faults_c001",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_fault_location_patterns_c003",
+        "cwru_dataset_notes_c001",
+        "pod_thrust_bearing_plan_ch5_c026",
+        "bearing_cage_fault_c002",
+        "bearing_ball_fault_c002",
+        "bearing_ball_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_008",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "pipeline_leakage_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "no_signal_diagnosis_boundary",
+        "pipeline_leakage_notes",
+        "cwru_bearing_dataset_boundaries",
+        "cwru_dataset_notes",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "pod_thrust_bearing_plan_ch2",
+        "maintenance_decision",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes"
+      ],
+      "retrieved_chunk_ids": [
+        "no_signal_diagnosis_boundary_c001",
+        "pipeline_leakage_notes_c002",
+        "cwru_bearing_dataset_boundaries_c005",
+        "cwru_dataset_notes_c001",
+        "rag_safety_rules_c001",
+        "pump_gearbox_faults_c003",
+        "pod_thrust_bearing_plan_ch2_c013",
+        "maintenance_decision_c003",
+        "no_signal_diagnosis_boundary_c002",
+        "cwru_dataset_notes_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "multihop_009",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules",
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "motor_faults",
+        "bearing_maintenance_decision_actions",
+        "battery_thermal_monitoring",
+        "pump_gearbox_faults",
+        "maintenance_decision",
+        "maintenance_decision"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c003",
+        "rag_safety_rules_c003",
+        "bearing_outer_race_fault_c003",
+        "vibration_signal_features_c002",
+        "motor_faults_c002",
+        "bearing_maintenance_decision_actions_c006",
+        "battery_thermal_monitoring_c001",
+        "pump_gearbox_faults_c003",
+        "maintenance_decision_c001",
+        "maintenance_decision_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_010",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "bearing_inner_race_fault",
+        "bearing_terms_and_aliases",
+        "bearing_basics_and_components",
+        "bearing_fault_location_patterns",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_maintenance_decision_actions",
+        "bearing_outer_race_fault",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "maintenance_decision_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_terms_and_aliases_c002",
+        "bearing_basics_and_components_c001",
+        "bearing_fault_location_patterns_c001",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "bearing_maintenance_decision_actions_c004",
+        "bearing_outer_race_fault_c002",
+        "bearing_outer_race_fault_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_011",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "maintenance_decision",
+        "bearing_terms_and_aliases",
+        "bearing_fault_location_patterns",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_basics_and_components",
+        "cwru_dataset_notes",
+        "pump_gearbox_faults",
+        "bearing_inner_race_fault",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c001",
+        "maintenance_decision_c002",
+        "bearing_terms_and_aliases_c002",
+        "bearing_fault_location_patterns_c003",
+        "pod_thrust_bearing_plan_ch1_c013",
+        "bearing_basics_and_components_c001",
+        "cwru_dataset_notes_c001",
+        "pump_gearbox_faults_c001",
+        "bearing_inner_race_fault_c003",
+        "bearing_inner_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_012",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_ball_fault",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "motor_faults",
+        "bearing_fault_location_patterns",
+        "equipment_temperature_checks",
+        "bearing_multimodal_condition_monitoring",
+        "rag_safety_rules",
+        "maintenance_decision",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_ball_fault_c003",
+        "maintenance_decision_c002",
+        "bearing_outer_race_fault_c003",
+        "motor_faults_c002",
+        "bearing_fault_location_patterns_c003",
+        "equipment_temperature_checks_c004",
+        "bearing_multimodal_condition_monitoring_c002",
+        "rag_safety_rules_c003",
+        "maintenance_decision_c001",
+        "bearing_ball_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 0.6666666666666666,
+        "hit@5": 1.0,
+        "recall@5": 0.6666666666666666,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_013",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "maintenance_decision"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_outer_race_fault",
+        "motor_faults",
+        "bearing_ball_fault",
+        "bearing_rolling_contact_fatigue",
+        "bearing_terms_and_aliases",
+        "bearing_cage_fault",
+        "bearing_fault_location_patterns"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c002",
+        "bearing_fault_location_patterns_c001",
+        "bearing_cracks_fracture_cage_damage_c004",
+        "bearing_outer_race_fault_c003",
+        "motor_faults_c001",
+        "bearing_ball_fault_c002",
+        "bearing_rolling_contact_fatigue_c003",
+        "bearing_terms_and_aliases_c002",
+        "bearing_cage_fault_c003",
+        "bearing_fault_location_patterns_c004"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_014",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_failure_analysis_workflow",
+        "rag_safety_rules",
+        "pump_gearbox_faults",
+        "bearing_failure_taxonomy",
+        "bearing_rag_answer_boundaries",
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch3",
+        "vibration_signal_features",
+        "pod_thrust_bearing_plan_ch6",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_failure_analysis_workflow_c006",
+        "rag_safety_rules_c003",
+        "pump_gearbox_faults_c003",
+        "bearing_failure_taxonomy_c003",
+        "bearing_rag_answer_boundaries_c001",
+        "pipeline_leakage_notes_c002",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "vibration_signal_features_c002",
+        "pod_thrust_bearing_plan_ch6_c021",
+        "rag_safety_rules_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "multihop_015",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "rag_safety_rules",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "pump_gearbox_faults",
+        "bearing_electrical_erosion",
+        "pipeline_leakage_notes",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "bearing_basics_and_components",
+        "bearing_arrangements_clearance_preload",
+        "thrust_and_axial_bearings",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "pump_gearbox_faults_c003",
+        "bearing_electrical_erosion_c005",
+        "pipeline_leakage_notes_c002",
+        "cwru_bearing_dataset_boundaries_c005",
+        "bearing_rag_answer_boundaries_c004",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_basics_and_components_c004",
+        "bearing_arrangements_clearance_preload_c001",
+        "thrust_and_axial_bearings_c005",
+        "rag_safety_rules_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.1
+      }
+    },
+    {
+      "id": "multihop_016",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "pipeline_leakage_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch3",
+        "no_signal_diagnosis_boundary",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_family_scope",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "pod_thrust_bearing_plan_ch6_c061",
+        "pod_thrust_bearing_plan_ch2_c013",
+        "pod_thrust_bearing_plan_ch5_c055",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "no_signal_diagnosis_boundary_c001",
+        "pod_thrust_bearing_plan_ch4_c017",
+        "bearing_family_scope_c004",
+        "pod_thrust_bearing_plan_ch6_c063",
+        "pod_thrust_bearing_plan_ch6_c029"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.3333333333333333,
+        "hit@3": 1.0,
+        "recall@3": 0.3333333333333333,
+        "hit@5": 1.0,
+        "recall@5": 0.3333333333333333,
+        "hit@10": 1.0,
+        "recall@10": 0.3333333333333333,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_017",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_ch4",
+        "cwru_dataset_notes",
+        "no_signal_diagnosis_boundary",
+        "bearing_load_life_and_limits",
+        "bearing_cage_fault",
+        "bearing_low_speed_heavy_load_monitoring",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c002",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "cwru_dataset_notes_c002",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_load_life_and_limits_c002",
+        "bearing_cage_fault_c002",
+        "bearing_low_speed_heavy_load_monitoring_c001",
+        "rag_safety_rules_c003",
+        "bearing_rag_answer_boundaries_c006"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_018",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "vibration_signal_features",
+        "bearing_vibration_features_frequencies",
+        "bearing_fault_severity_trending",
+        "bearing_envelope_order_tracking",
+        "bearing_overheating_discoloration",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_vibration_measurement_quality",
+        "vibration_signal_features",
+        "bearing_multimodal_condition_monitoring"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c002",
+        "vibration_signal_features_c002",
+        "bearing_vibration_features_frequencies_c004",
+        "bearing_fault_severity_trending_c002",
+        "bearing_envelope_order_tracking_c001",
+        "bearing_overheating_discoloration_c003",
+        "pod_thrust_bearing_plan_ch5_c028",
+        "bearing_vibration_measurement_quality_c001",
+        "vibration_signal_features_c001",
+        "bearing_multimodal_condition_monitoring_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_019",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "motor_faults"
+      ],
+      "retrieved_doc_ids": [
+        "motor_faults",
+        "bearing_cage_fault",
+        "rag_safety_rules",
+        "cwru_dataset_notes",
+        "bearing_ball_fault",
+        "bearing_dataset_labeling_validation",
+        "equipment_temperature_checks",
+        "maintenance_decision",
+        "motor_faults",
+        "bearing_ball_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "motor_faults_c001",
+        "bearing_cage_fault_c003",
+        "rag_safety_rules_c001",
+        "cwru_dataset_notes_c001",
+        "bearing_ball_fault_c002",
+        "bearing_dataset_labeling_validation_c004",
+        "equipment_temperature_checks_c004",
+        "maintenance_decision_c001",
+        "motor_faults_c002",
+        "bearing_ball_fault_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "multihop_020",
+      "group": "multi_hop",
+      "reference_doc_ids": [
+        "pump_gearbox_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pump_gearbox_faults",
+        "bearing_family_scope",
+        "bearing_symptom_troubleshooting_matrix",
+        "pipeline_leakage_notes",
+        "bearing_outer_race_fault",
+        "equipment_temperature_checks",
+        "bearing_multimodal_condition_monitoring",
+        "bearing_rag_answer_boundaries",
+        "pump_gearbox_faults",
+        "pump_gearbox_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "pump_gearbox_faults_c003",
+        "bearing_family_scope_c003",
+        "bearing_symptom_troubleshooting_matrix_c001",
+        "pipeline_leakage_notes_c002",
+        "bearing_outer_race_fault_c003",
+        "equipment_temperature_checks_c001",
+        "bearing_multimodal_condition_monitoring_c001",
+        "bearing_rag_answer_boundaries_c003",
+        "pump_gearbox_faults_c001",
+        "pump_gearbox_faults_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_001",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "maintenance_decision",
+        "rag_safety_rules",
+        "motor_faults",
+        "equipment_temperature_checks",
+        "pipeline_leakage_notes",
+        "bearing_maintenance_decision_actions",
+        "bearing_multimodal_condition_monitoring",
+        "bearing_maintenance_decision_actions",
+        "bearing_dataset_labeling_validation"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c001",
+        "maintenance_decision_c003",
+        "rag_safety_rules_c002",
+        "motor_faults_c002",
+        "equipment_temperature_checks_c003",
+        "pipeline_leakage_notes_c002",
+        "bearing_maintenance_decision_actions_c005",
+        "bearing_multimodal_condition_monitoring_c004",
+        "bearing_maintenance_decision_actions_c003",
+        "bearing_dataset_labeling_validation_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "refusal_002",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "no_signal_diagnosis_boundary",
+        "bearing_sealing_contamination_storage",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_evidence_preservation",
+        "bearing_maintenance_decision_actions",
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c003",
+        "rag_safety_rules_c002",
+        "bearing_rag_answer_boundaries_c002",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_sealing_contamination_storage_c003",
+        "pod_thrust_bearing_plan_ch4_c009",
+        "bearing_evidence_preservation_c001",
+        "bearing_maintenance_decision_actions_c001",
+        "maintenance_decision_c001",
+        "rag_safety_rules_c001"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "refusal_003",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "pump_gearbox_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "battery_thermal_monitoring",
+        "bearing_inner_race_fault",
+        "pump_gearbox_faults",
+        "bearing_baseline_alarm_strategy",
+        "no_signal_diagnosis_boundary",
+        "bearing_family_scope",
+        "bearing_rag_answer_boundaries",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001",
+        "battery_thermal_monitoring_c003",
+        "bearing_inner_race_fault_c002",
+        "pump_gearbox_faults_c003",
+        "bearing_baseline_alarm_strategy_c003",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_family_scope_c002",
+        "bearing_rag_answer_boundaries_c002",
+        "bearing_rag_answer_boundaries_c006"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_004",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "motor_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "motor_faults",
+        "bearing_electrical_erosion",
+        "equipment_temperature_checks",
+        "battery_thermal_monitoring",
+        "bearing_multimodal_condition_monitoring",
+        "bearing_type_selection",
+        "bearing_wear_smearing_seizure",
+        "pod_thrust_bearing_plan_ch4",
+        "motor_faults",
+        "bearing_electrical_erosion"
+      ],
+      "retrieved_chunk_ids": [
+        "motor_faults_c002",
+        "bearing_electrical_erosion_c001",
+        "equipment_temperature_checks_c003",
+        "battery_thermal_monitoring_c001",
+        "bearing_multimodal_condition_monitoring_c001",
+        "bearing_type_selection_c004",
+        "bearing_wear_smearing_seizure_c003",
+        "pod_thrust_bearing_plan_ch4_c001",
+        "motor_faults_c001",
+        "bearing_electrical_erosion_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_005",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "pipeline_leakage_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_index",
+        "pipeline_leakage_notes",
+        "pipeline_leakage_notes",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4"
+      ],
+      "retrieved_chunk_ids": [
+        "pipeline_leakage_notes_c002",
+        "pod_thrust_bearing_plan_ch2_c013",
+        "pod_thrust_bearing_plan_ch4_c017",
+        "pod_thrust_bearing_plan_ch5_c052",
+        "pod_thrust_bearing_plan_ch6_c061",
+        "pod_thrust_bearing_plan_index_c006",
+        "pipeline_leakage_notes_c001",
+        "pipeline_leakage_notes_c003",
+        "pod_thrust_bearing_plan_ch4_c015",
+        "pod_thrust_bearing_plan_ch4_c016"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_006",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "cwru_dataset_notes",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "cwru_dataset_notes",
+        "bearing_rag_answer_boundaries",
+        "pod_thrust_bearing_plan_ch6",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_dataset_labeling_validation",
+        "bearing_failure_taxonomy",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch1",
+        "cwru_dataset_notes",
+        "cwru_bearing_dataset_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "cwru_dataset_notes_c002",
+        "bearing_rag_answer_boundaries_c005",
+        "pod_thrust_bearing_plan_ch6_c041",
+        "cwru_bearing_dataset_boundaries_c005",
+        "bearing_dataset_labeling_validation_c003",
+        "bearing_failure_taxonomy_c004",
+        "pod_thrust_bearing_plan_ch2_c012",
+        "pod_thrust_bearing_plan_ch1_c018",
+        "cwru_dataset_notes_c001",
+        "cwru_bearing_dataset_boundaries_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_007",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "maintenance_decision",
+        "cwru_bearing_dataset_boundaries",
+        "pod_thrust_bearing_plan_ch5",
+        "vibration_signal_features",
+        "rag_safety_rules",
+        "bearing_outer_race_fault",
+        "no_signal_diagnosis_boundary",
+        "bearing_low_speed_heavy_load_monitoring",
+        "cwru_bearing_dataset_boundaries",
+        "bearing_envelope_order_tracking"
+      ],
+      "retrieved_chunk_ids": [
+        "maintenance_decision_c003",
+        "cwru_bearing_dataset_boundaries_c002",
+        "pod_thrust_bearing_plan_ch5_c010",
+        "vibration_signal_features_c003",
+        "rag_safety_rules_c002",
+        "bearing_outer_race_fault_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "bearing_low_speed_heavy_load_monitoring_c005",
+        "cwru_bearing_dataset_boundaries_c001",
+        "bearing_envelope_order_tracking_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_008",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "rag_safety_rules",
+        "vibration_signal_features"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_maintenance_decision_actions",
+        "maintenance_decision",
+        "rag_safety_rules",
+        "vibration_signal_features",
+        "no_signal_diagnosis_boundary",
+        "bearing_fault_severity_trending",
+        "bearing_outer_race_fault",
+        "maintenance_decision",
+        "bearing_inner_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c003",
+        "bearing_maintenance_decision_actions_c004",
+        "maintenance_decision_c001",
+        "rag_safety_rules_c002",
+        "vibration_signal_features_c003",
+        "no_signal_diagnosis_boundary_c002",
+        "bearing_fault_severity_trending_c005",
+        "bearing_outer_race_fault_c003",
+        "maintenance_decision_c003",
+        "bearing_inner_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.25
+      }
+    },
+    {
+      "id": "refusal_009",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "battery_thermal_monitoring",
+        "bearing_baseline_alarm_strategy",
+        "bearing_family_scope",
+        "test_rig_technical_spec",
+        "maintenance_decision",
+        "pod_thrust_bearing_plan_ch6",
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c002",
+        "bearing_rag_answer_boundaries_c002",
+        "battery_thermal_monitoring_c003",
+        "bearing_baseline_alarm_strategy_c003",
+        "bearing_family_scope_c002",
+        "test_rig_technical_spec_c003",
+        "maintenance_decision_c003",
+        "pod_thrust_bearing_plan_ch6_c044",
+        "rag_safety_rules_c001",
+        "bearing_rag_answer_boundaries_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_010",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_outer_race_fault",
+        "no_signal_diagnosis_boundary",
+        "cwru_dataset_notes",
+        "pod_thrust_bearing_plan_ch5",
+        "vibration_signal_features",
+        "bearing_inner_race_fault",
+        "bearing_fault_location_patterns",
+        "bearing_terms_and_aliases",
+        "no_signal_diagnosis_boundary",
+        "bearing_outer_race_fault"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_outer_race_fault_c003",
+        "no_signal_diagnosis_boundary_c003",
+        "cwru_dataset_notes_c001",
+        "pod_thrust_bearing_plan_ch5_c050",
+        "vibration_signal_features_c002",
+        "bearing_inner_race_fault_c001",
+        "bearing_fault_location_patterns_c004",
+        "bearing_terms_and_aliases_c001",
+        "no_signal_diagnosis_boundary_c001",
+        "bearing_outer_race_fault_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 0.0,
+        "recall@5": 0.0,
+        "hit@10": 0.0,
+        "recall@10": 0.0,
+        "mrr@10": 0.0
+      }
+    },
+    {
+      "id": "refusal_011",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "motor_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "no_signal_diagnosis_boundary",
+        "pipeline_leakage_notes",
+        "motor_faults",
+        "cwru_bearing_dataset_boundaries",
+        "cwru_dataset_notes",
+        "maintenance_decision",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_envelope_order_tracking",
+        "motor_faults",
+        "no_signal_diagnosis_boundary"
+      ],
+      "retrieved_chunk_ids": [
+        "no_signal_diagnosis_boundary_c001",
+        "pipeline_leakage_notes_c002",
+        "motor_faults_c002",
+        "cwru_bearing_dataset_boundaries_c005",
+        "cwru_dataset_notes_c001",
+        "maintenance_decision_c001",
+        "pod_thrust_bearing_plan_ch4_c010",
+        "bearing_envelope_order_tracking_c003",
+        "motor_faults_c001",
+        "no_signal_diagnosis_boundary_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "refusal_012",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "rag_safety_rules",
+        "bearing_rag_answer_boundaries",
+        "maintenance_decision",
+        "bearing_maintenance_decision_actions",
+        "bearing_cage_fault",
+        "bearing_failure_taxonomy",
+        "bearing_inner_race_fault",
+        "vibration_signal_features",
+        "bearing_rag_answer_boundaries",
+        "rag_safety_rules"
+      ],
+      "retrieved_chunk_ids": [
+        "rag_safety_rules_c003",
+        "bearing_rag_answer_boundaries_c002",
+        "maintenance_decision_c003",
+        "bearing_maintenance_decision_actions_c003",
+        "bearing_cage_fault_c002",
+        "bearing_failure_taxonomy_c004",
+        "bearing_inner_race_fault_c002",
+        "vibration_signal_features_c003",
+        "bearing_rag_answer_boundaries_c004",
+        "rag_safety_rules_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_013",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "bearing_cage_fault",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_inner_race_fault",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_cage_fault",
+        "roller_bearing_types",
+        "bearing_fault_location_patterns",
+        "bearing_ball_fault",
+        "bearing_materials_cages_seals",
+        "maintenance_decision",
+        "bearing_cracks_fracture_cage_damage",
+        "bearing_cracks_fracture_cage_damage"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_inner_race_fault_c003",
+        "bearing_cracks_fracture_cage_damage_c003",
+        "bearing_cage_fault_c002",
+        "roller_bearing_types_c001",
+        "bearing_fault_location_patterns_c004",
+        "bearing_ball_fault_c002",
+        "bearing_materials_cages_seals_c004",
+        "maintenance_decision_c001",
+        "bearing_cracks_fracture_cage_damage_c002",
+        "bearing_cracks_fracture_cage_damage_c004"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.3333333333333333
+      }
+    },
+    {
+      "id": "refusal_014",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "pump_gearbox_faults",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "pump_gearbox_faults",
+        "bearing_envelope_order_tracking",
+        "bearing_terms_and_aliases",
+        "bearing_vibration_measurement_quality",
+        "bearing_vibration_features_frequencies",
+        "roller_bearing_types",
+        "bearing_inner_race_fault",
+        "pod_thrust_bearing_plan_ch2",
+        "pump_gearbox_faults",
+        "pump_gearbox_faults"
+      ],
+      "retrieved_chunk_ids": [
+        "pump_gearbox_faults_c001",
+        "bearing_envelope_order_tracking_c004",
+        "bearing_terms_and_aliases_c002",
+        "bearing_vibration_measurement_quality_c003",
+        "bearing_vibration_features_frequencies_c002",
+        "roller_bearing_types_c001",
+        "bearing_inner_race_fault_c002",
+        "pod_thrust_bearing_plan_ch2_c004",
+        "pump_gearbox_faults_c002",
+        "pump_gearbox_faults_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 0.5,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "refusal_015",
+      "group": "refusal",
+      "reference_doc_ids": [
+        "maintenance_decision",
+        "rag_safety_rules"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_cage_fault",
+        "maintenance_decision",
+        "bearing_outer_race_fault",
+        "equipment_temperature_checks",
+        "motor_faults",
+        "bearing_ball_fault",
+        "bearing_symptom_troubleshooting_matrix",
+        "bearing_vibration_features_frequencies",
+        "bearing_overheating_discoloration",
+        "no_signal_diagnosis_boundary"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_cage_fault_c003",
+        "maintenance_decision_c001",
+        "bearing_outer_race_fault_c003",
+        "equipment_temperature_checks_c002",
+        "motor_faults_c001",
+        "bearing_ball_fault_c003",
+        "bearing_symptom_troubleshooting_matrix_c002",
+        "bearing_vibration_features_frequencies_c001",
+        "bearing_overheating_discoloration_c004",
+        "no_signal_diagnosis_boundary_c002"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 0.5,
+        "hit@5": 1.0,
+        "recall@5": 0.5,
+        "hit@10": 1.0,
+        "recall@10": 0.5,
+        "mrr@10": 0.5
+      }
+    }
+  ]
+}

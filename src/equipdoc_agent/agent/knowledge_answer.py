@@ -41,6 +41,11 @@ GROUNDING_FORBIDDEN_TERMS = (
 TECHNICAL_ACRONYM_PATTERN = re.compile(r"\b[A-Z][A-Z0-9-]{1,12}\b")
 TECHNICAL_NUMBER_PATTERN = re.compile(r"(?<![#A-Za-z])\d+(?:\.\d+)?%?")
 WINDOWS_PATH_PATTERN = re.compile(r"(?i)\b[A-Z]:[\\/][^\s\"']+")
+SPEED_RANGE_PATTERN = re.compile(
+    r"\d[\d.]*\s*[～~–—-]\s*\d[\d.]*\s*(?:r/min|rpm)",
+    re.IGNORECASE,
+)
+BEARING_MODEL_PATTERN = re.compile(r"\b(?:NU\s*)?\d{3,5}(?:EM)?\b", re.IGNORECASE)
 
 QUESTION_SLOT_TERMS: dict[str, tuple[str, ...]] = {
     "mechanism": ("为什么", "为何", "原因", "机理", "原理", "导致", "形成"),
@@ -62,7 +67,20 @@ QUESTION_SLOT_TERMS: dict[str, tuple[str, ...]] = {
     ),
     "comparison": ("区别", "区分", "对比", "混淆", "误报", "不同", "还是"),
     "field_review": ("现场", "复核", "检查", "巡检", "确认", "验证"),
-    "maintenance": ("维修", "维护", "更换", "维修建议", "维护建议", "怎么办"),
+    "maintenance": (
+        "维修",
+        "维护",
+        "更换",
+        "维修建议",
+        "维护建议",
+        "处理建议",
+        "怎么处理",
+        "处置",
+        "应对",
+        "排查",
+        "修复",
+        "怎么办",
+    ),
     "boundary": (
         "证据不足",
         "无信号",
@@ -105,9 +123,9 @@ EVIDENCE_SLOT_TERMS: dict[str, tuple[str, ...]] = {
         "导致",
         "产生",
         "形成",
-        "不足",
         "影响",
         "需要结合",
+        "更适合",
     ),
     "signal_feature": (
         "频谱",
@@ -144,8 +162,10 @@ EVIDENCE_SLOT_TERMS: dict[str, tuple[str, ...]] = {
         "原始振动信号",
         "置信度",
         "不能",
+        "不得",
         "不足以",
         "不应",
+        "禁止",
         "人工复核",
         "剩余寿命",
     ),
@@ -197,6 +217,18 @@ FIELD_REVIEW_ACTION_TERMS = (
     "结合",
     "排查",
     "建议",
+)
+
+NEGATED_ACTION_TERMS = ("不得", "不能", "不应", "禁止", "未执行", "没有执行")
+AFFIRMATIVE_MAINTENANCE_TERMS = (
+    "建议检查",
+    "应检查",
+    "应排查",
+    "安排停机",
+    "评估是否更换",
+    "处理建议",
+    "维修建议",
+    "维护建议",
 )
 
 FULL_RAG_SYSTEM_PROMPT = """你是机电装备智能运维辅助 Agent 的证据选择器。
@@ -293,11 +325,19 @@ def _normalize_evidence_text(text: str) -> str:
     return text.strip("。！？；;!? ")
 
 
+def _evidence_body_text(text: str) -> str:
+    """Remove retrieval-only document envelopes while preserving source facts."""
+    lines = [line.strip() for line in str(text).splitlines()]
+    while lines and (not lines[0] or lines[0].startswith(("文档：", "章节："))):
+        lines.pop(0)
+    return " ".join(line for line in lines if line).strip()
+
+
 def build_evidence_candidates(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     for hit_index, item in enumerate(hits):
         citation = f"{item.get('doc_id', 'unknown')}#{item.get('chunk_id', 'unknown')}"
-        text = str(item.get("text", "")).replace("\n", " ").strip()
+        text = _evidence_body_text(str(item.get("text", "")))
         for unit in _answer_units(text):
             excerpt = unit.rstrip(" \t。！？；;!?")
             if not excerpt:
@@ -308,6 +348,7 @@ def build_evidence_candidates(hits: list[dict[str, Any]]) -> list[dict[str, Any]
                     "citation": citation,
                     "text": excerpt,
                     "focused_match": bool(item.get("focused_match")) or hit_index < 2,
+                    "source_priority": float(item.get("source_priority", 0.0)),
                 }
             )
     return candidates
@@ -461,6 +502,16 @@ def _evidence_slots(text: str) -> set[str]:
         for slot, terms in EVIDENCE_SLOT_TERMS.items()
         if any(term in normalized for term in terms)
     }
+    # A safety sentence such as "不得编造维修工单" mentions maintenance only
+    # to prohibit an unsupported claim.  It must not satisfy a user's request
+    # for an actual treatment recommendation.
+    if (
+        "maintenance" in slots
+        and "boundary" in slots
+        and any(term in normalized for term in NEGATED_ACTION_TERMS)
+        and not any(term in normalized for term in AFFIRMATIVE_MAINTENANCE_TERMS)
+    ):
+        slots.discard("maintenance")
     if "不平衡" in normalized and "不对中" in normalized:
         slots.add("comparison")
     return slots
@@ -478,11 +529,12 @@ def _question_focus_terms(question: str) -> tuple[str, ...]:
 
 
 def _candidate_score(
+    question: str,
     question_tokens: set[str],
     focus_terms: tuple[str, ...],
     item: dict[str, Any],
     slot: str | None = None,
-) -> tuple[int, int, int, int, int]:
+) -> tuple[int, int, int, int, int, int, int, int]:
     text = str(item.get("text", ""))
     normalized = text.lower()
     focus_matches = sum(term in normalized for term in focus_terms)
@@ -493,7 +545,42 @@ def _candidate_score(
     )
     overlap = len(question_tokens.intersection(_selection_tokens(text)))
     focused = int(bool(item.get("focused_match")))
-    return int(bool(focus_matches)), slot_priority, focus_matches, overlap, focused
+    normalized_question = question.lower()
+    parameter_exact = 0
+    parameter_detail = 0
+    if "转速" in normalized_question and any(
+        marker in normalized_question
+        for marker in ("范围", "多少", "最高", "最低", "可调", "额定", "工作转速")
+    ):
+        parameter_exact = int(bool(SPEED_RANGE_PATTERN.search(text)))
+        parameter_detail = 4 * int("转速" in text)
+    elif "轴承" in normalized_question and "型号" in normalized_question:
+        bearing_fact = any(
+            marker in text
+            for marker in (
+                "被测推力轴承",
+                "被测支撑轴承",
+                "球面滚子推力轴承",
+                "单列圆柱滚子轴承",
+            )
+        )
+        parameter_exact = int(
+            bearing_fact and bool(BEARING_MODEL_PATTERN.search(text))
+        )
+        parameter_detail = 6 * int(bearing_fact)
+    source_priority = (
+        int(float(item.get("source_priority", 0.0))) if parameter_exact else 0
+    )
+    return (
+        parameter_exact,
+        source_priority,
+        parameter_detail,
+        int(bool(focus_matches)),
+        slot_priority,
+        focus_matches,
+        overlap,
+        focused,
+    )
 
 
 def select_evidence_for_question(
@@ -519,7 +606,7 @@ def select_evidence_for_question(
         return sorted(
             items,
             key=lambda pair: (
-                *_candidate_score(question_tokens, focus_terms, pair[1], slot),
+                *_candidate_score(question, question_tokens, focus_terms, pair[1], slot),
                 -pair[0],
             ),
             reverse=True,
@@ -628,15 +715,60 @@ def render_selected_evidence(candidates: list[dict[str, Any]], selected_ids: lis
 """
 
 
+def _direct_parameter_lines(
+    question: str,
+    selected: list[dict[str, Any]],
+) -> tuple[list[str], set[str]]:
+    """Format exact retrieved values without asking a rejected model to rewrite them."""
+    normalized = question.lower()
+    if "转速" in normalized and any(
+        marker in normalized
+        for marker in ("范围", "多少", "最高", "最低", "可调", "额定", "工作转速")
+    ):
+        for item in selected:
+            match = SPEED_RANGE_PATTERN.search(str(item.get("text", "")))
+            if match is None:
+                continue
+            citation = str(item["citation"])
+            source_label = "实验方案" if citation.startswith("pod_thrust_bearing_plan") else "项目文件"
+            return (
+                [f"按照{source_label}，试验台转速范围为 {match.group(0)}。 [{citation}]"],
+                {str(item["evidence_id"])},
+            )
+
+    if "轴承" in normalized and "型号" in normalized:
+        lines: list[str] = []
+        used: set[str] = set()
+        seen_labels: set[str] = set()
+        for item in selected:
+            text = str(item.get("text", ""))
+            for label in ("被测推力轴承", "被测支撑轴承"):
+                match = re.search(rf"{label}\s*\|\s*([^|]+)", text)
+                if match is None or label in seen_labels:
+                    continue
+                value = match.group(1).strip()
+                if not value:
+                    continue
+                citation = str(item["citation"])
+                lines.append(f"试验台{label}型号为 {value}。 [{citation}]")
+                used.add(str(item["evidence_id"]))
+                seen_labels.add(label)
+        if lines:
+            return lines, used
+    return [], set()
+
+
 def render_structured_evidence_answer(
     question: str,
     candidates: list[dict[str, Any]],
     selected_ids: list[str],
     slot_assignments: dict[str, str] | None = None,
 ) -> str:
-    """Organize complete evidence into a readable non-LLM answer path."""
+    """Render a readable direct answer when model synthesis is rejected."""
     lookup = {item["evidence_id"]: item for item in candidates}
-    selected = [lookup[evidence_id] for evidence_id in selected_ids if evidence_id in lookup]
+    selected = [
+        lookup[evidence_id] for evidence_id in selected_ids if evidence_id in lookup
+    ]
     requirements = detect_question_requirements(question)
     if slot_assignments is None:
         slot_assignments = select_evidence_for_question(
@@ -644,29 +776,43 @@ def render_structured_evidence_answer(
             selected,
             limit=len(selected),
         ).get("slot_assignments", {})
-    used: set[str] = set()
-    sections = ["## 按证据组织的回答"]
-    for slot in requirements:
-        evidence_id = str(slot_assignments.get(slot, ""))
-        item = lookup.get(evidence_id)
-        if item is None:
-            continue
-        sections.extend(
-            [
-                "",
-                f"### {SLOT_HEADINGS.get(slot, slot)}",
-                "",
-                f"- {item['text']} [{item['citation']}]",
-            ]
-        )
-        used.add(evidence_id)
+
+    direct_lines, used = _direct_parameter_lines(question, selected)
+    direct: list[dict[str, Any]] = []
+    if not direct_lines:
+        for slot in requirements:
+            evidence_id = str(slot_assignments.get(slot, ""))
+            item = lookup.get(evidence_id)
+            if item is not None and item not in direct:
+                direct.append(item)
+    # Parameter and project fact questions do not necessarily map to a fault
+    # mechanism slot.  The highest-ranked selected sentence is still the most
+    # direct safe answer and must not be buried under "supplementary evidence".
+    if not direct_lines and not direct and selected:
+        direct.append(selected[0])
+
+    sections = ["## 直接回答", ""]
+    if direct_lines:
+        for line in direct_lines:
+            sections.append(line)
+            sections.append("")
+        sections.pop()
+    elif direct:
+        for item in direct:
+            sections.append(f"{item['text']} [{item['citation']}]")
+            sections.append("")
+            used.add(str(item["evidence_id"]))
+        if sections[-1] == "":
+            sections.pop()
+    else:
+        sections.append("当前检索证据不足以形成直接回答。")
 
     remaining = [item for item in selected if item["evidence_id"] not in used]
     if remaining:
         sections.extend(
             [
                 "",
-                "### 补充依据",
+                "## 补充依据",
                 "",
                 *[f"- {item['text']} [{item['citation']}]" for item in remaining],
             ]
@@ -793,6 +939,7 @@ def _safe_synthesis_observation(value: Any) -> Any:
 
 def _grounded_evidence_context(selected_evidence: list[dict[str, Any]]) -> str:
     return "\n".join(
+        f"SOURCE_PRIORITY={int(float(item.get('source_priority', 0.0)))} "
         f"[{item.get('citation', 'unknown#unknown')}] {str(item.get('text', '')).strip()}"
         for item in selected_evidence
     )
@@ -808,7 +955,11 @@ def build_grounded_synthesis_messages(
     system_prompt = """你是机电装备智能运维辅助 Agent 的证据化回答器。
 只能依据本轮给出的证据句解释机理、现象和现场复核建议，不得引入外部知识。
 工具观察是本次运行事实，只用于理解上下文；不要用知识文档引用替工具结果背书。
-输出只能包含“## 综合解释”和可选的“## 现场复核”两个部分。
+必须先针对用户问题给出明确、通顺的自然语言结论，不能直接从证据清单或背景介绍开始。
+输出必须包含“## 直接回答”，可根据需要追加“## 补充依据”或“## 现场复核”。
+“## 直接回答”的第一句必须回答用户实际询问的对象、数值、型号、原因或方法；若证据不足，要明确说明缺少什么。
+组织语言时优先复用证据中的术语、数字、单位和关键措辞，不要扩展证据未出现的事实。
+若证据中的项目参数互相冲突，必须明确说明不同口径；以 SOURCE_PRIORITY 较高的证据作为主回答，低优先级证据仅作为补充，不得静默混合成一个数值。
 每一个技术陈述句都必须在句末标注本句实际依据的 [doc_id#chunk_id]。
 不得把一个引用只挂在整段末尾，不得使用未提供的引用、缩写、频率名称或数字。
 不得声称已经控制设备、预测精确剩余寿命或保证设备安全。
@@ -847,7 +998,8 @@ def build_grounded_synthesis_retry_messages(
         },
         "rejected_draft": str(rejected_draft)[:5000],
         "instruction": (
-            "重新生成完整回答。删除无证据内容，并确保每个技术陈述句末都有其直接证据引用。"
+            "重新生成完整回答。先用“## 直接回答”明确回答用户问题，删除无证据内容，"
+            "优先复用证据原有措辞，并确保每个技术陈述句末都有其直接证据引用。"
         ),
     }
     messages.append(HumanMessage(content=json.dumps(retry_context, ensure_ascii=False, indent=2)))
@@ -855,19 +1007,20 @@ def build_grounded_synthesis_retry_messages(
 
 
 def should_retry_grounded_synthesis(validation: dict[str, Any]) -> bool:
-    """Retry only validation failures that a formatting/citation repair can fix."""
+    """Retry once when a constrained rewrite can repair an invalid draft."""
     if validation.get("valid"):
         return False
-    if int(validation.get("citation_count") or 0) == 0:
-        return False
-    if any(
-        validation.get(key)
-        for key in ("unsupported_claims", "unsupported_terms", "forbidden_terms")
-    ):
-        return False
     return any(
-        validation.get(key) for key in ("unknown_citations", "uncited_claims", "missing_slots")
-    )
+        validation.get(key)
+        for key in (
+            "unknown_citations",
+            "uncited_claims",
+            "unsupported_claims",
+            "unsupported_terms",
+            "forbidden_terms",
+            "missing_slots",
+        )
+    ) or int(validation.get("citation_count") or 0) == 0
 
 
 def _claim_support_metrics(claim: str, evidence_text: str) -> dict[str, Any]:

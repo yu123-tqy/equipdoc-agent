@@ -50,6 +50,14 @@ def _searchable_text(item: dict[str, Any]) -> str:
     )
 
 
+def _chunk_body_text(item: dict[str, Any]) -> str:
+    """Return chunk facts without retrieval-only document/section envelopes."""
+    lines = [line.strip() for line in str(item.get("text", "")).splitlines()]
+    return "\n".join(
+        line for line in lines if not line.startswith(("文档：", "章节："))
+    )
+
+
 def _matches_filters(item: dict[str, Any], filters: dict[str, str] | None) -> bool:
     if not filters:
         return True
@@ -60,6 +68,106 @@ def _matches_filters(item: dict[str, Any], filters: dict[str, str] | None) -> bo
         if str(metadata.get(key)) != str(expected):
             return False
     return True
+
+
+def _source_priority(item: dict[str, Any]) -> float:
+    """Return the explicit source precedence used for near-tie reranking."""
+    raw = (item.get("metadata") or {}).get("source_priority", 0)
+    try:
+        return max(0.0, min(100.0, float(raw)))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _explicit_parameter_focus(query: str) -> str | None:
+    normalized = query.lower()
+    speed_markers = ("范围", "多少", "最高", "最低", "可调", "额定", "工作转速")
+    if "转速" in normalized and any(marker in normalized for marker in speed_markers):
+        return "speed"
+    if "轴承" in normalized and "型号" in normalized:
+        return "bearing_model"
+    return None
+
+
+FAULT_FOCUS_TERMS: dict[str, tuple[str, ...]] = {
+    "outer_race": ("外圈故障", "外圈缺陷", "外圈损伤"),
+    "inner_race": ("内圈故障", "内圈缺陷", "内圈损伤"),
+    "ball": ("滚动体故障", "滚动体发生故障", "滚动体损伤"),
+    "cage": ("保持架故障", "保持架损伤", "保持架断裂"),
+}
+
+
+def _explicit_fault_focus(query: str) -> str | None:
+    normalized = query.lower()
+    for fault_type, terms in FAULT_FOCUS_TERMS.items():
+        if any(term in normalized for term in terms):
+            return fault_type
+    return None
+
+
+def _fault_focus_score(query: str, item: dict[str, Any]) -> float:
+    """Promote the fault-specific mechanism and action chunks for explicit queries."""
+    fault_focus = _explicit_fault_focus(query)
+    if fault_focus is None:
+        return 0.0
+    metadata = item.get("metadata") or {}
+    searchable = _searchable_text(item)
+    body_text = _chunk_body_text(item)
+    score = 0.0
+    if str(metadata.get("fault_type", "")) == fault_focus:
+        score += 20.0
+    terms = FAULT_FOCUS_TERMS[fault_focus]
+    if any(term in searchable for term in terms):
+        score += 6.0
+    normalized_query = query.lower()
+    if any(term in normalized_query for term in ("原因", "为什么", "机理")) and any(
+        term in body_text for term in ("原因", "机理", "由于", "导致", "形成")
+    ):
+        score += 4.0
+    if any(
+        term in normalized_query
+        for term in ("处理", "处置", "维修", "维护", "怎么办", "应对")
+    ) and any(
+        term in body_text for term in ("处理建议", "检查", "更换", "维修", "维护")
+    ):
+        score += 4.0
+    return score
+
+
+def _parameter_focus_score(query: str, item: dict[str, Any]) -> float:
+    """Prefer chunks that contain the value requested by a parameter question.
+
+    Dense similarity and BM25 often rank a broad project overview above the
+    table/requirement that contains the actual number or model designation.
+    This small deterministic reranker is active only for explicit parameter
+    questions and never invents a value: it only promotes matching source text.
+    """
+    normalized_query = query.lower()
+    searchable = _searchable_text(item)
+    normalized_text = searchable.lower()
+    score = 0.0
+    focus = _explicit_parameter_focus(normalized_query)
+
+    if focus == "speed":
+        if "转速" in normalized_text:
+            score += 4.0
+        if re.search(
+            r"\d[\d.]*\s*[～~–—-]\s*\d[\d.]*\s*(?:r/min|rpm)",
+            normalized_text,
+        ):
+            score += 8.0
+        elif re.search(r"\d[\d.]*\s*(?:r/min|rpm)", normalized_text):
+            score += 3.0
+
+    if focus == "bearing_model":
+        if "型号" in normalized_text:
+            score += 4.0
+        if "被测推力轴承" in normalized_text or "被测支撑轴承" in normalized_text:
+            score += 6.0
+        if re.search(r"\b(?:nu\s*)?\d{3,5}(?:em)?\b", normalized_text):
+            score += 4.0
+
+    return score
 
 
 def _rrf(rankings: list[list[str]], k: int = 60) -> dict[str, float]:
@@ -203,7 +311,15 @@ class KnowledgeRetriever:
         top_k: int | None = None,
     ) -> list[dict[str, Any]]:
         final_k = top_k or self.settings.rag_top_k
-        pool_size = max(20, final_k)
+        parameter_query = _explicit_parameter_focus(query) is not None
+        fault_focus = _explicit_fault_focus(query)
+        multi_aspect_fault_query = fault_focus is not None and any(
+            term in query for term in ("处理", "处置", "维修", "维护", "怎么办", "应对")
+        )
+        # Tables can tokenize less favorably than prose.  Explicit parameter
+        # questions therefore use a wider candidate pool before the focused
+        # reranker promotes the row that actually contains the requested value.
+        pool_size = max(100 if parameter_query else (50 if fault_focus else 20), final_k)
         lexical = self._lexical_search(query, filters, pool_size)
         dense = self._dense_search(query, filters, pool_size)
         scores = _rrf(
@@ -217,21 +333,53 @@ class KnowledgeRetriever:
             chunk_id = item["chunk_id"]
             merged.setdefault(chunk_id, {}).update(item)
             merged[chunk_id]["rrf_score"] = scores.get(chunk_id, 0.0)
+            priority = _source_priority(item)
+            focus_score = _parameter_focus_score(query, item)
+            fault_focus_score = _fault_focus_score(query, item)
+            merged[chunk_id]["source_priority"] = priority
+            merged[chunk_id]["parameter_focus_score"] = focus_score
+            merged[chunk_id]["fault_focus_score"] = fault_focus_score
+            # Priority is deliberately only a near-tie breaker.  With RRF k=60,
+            # dividing by one million cannot jump an otherwise relevant result
+            # several lexical ranks merely because its source is more authoritative.
+            merged[chunk_id]["rank_score"] = scores.get(chunk_id, 0.0) + priority / 1_000_000.0
         ranked = sorted(
             merged.values(),
-            key=lambda item: item.get("rrf_score", 0.0),
+            key=lambda item: (
+                item.get("parameter_focus_score", 0.0),
+                (
+                    item.get("source_priority", 0.0)
+                    if item.get("parameter_focus_score", 0.0)
+                    else 0.0
+                ),
+                item.get("fault_focus_score", 0.0),
+                item.get("rank_score", 0.0),
+            ),
             reverse=True,
         )
+        # The corpus contains several chunks per document.  Reserve at least 80%
+        # of top-k for distinct documents, then let the remaining slots recover
+        # complementary chunks from the same source (for example, mechanism and
+        # field-review evidence stored under separate headings).
         selected = []
-        per_doc: dict[str, int] = {}
-        per_doc_limit = 3 if final_k >= 5 else 2
+        selected_docs: set[str] = set()
+        diversity_target = max(1, (final_k * 4 + 4) // 5)
+        if multi_aspect_fault_query:
+            for item in ranked:
+                metadata = item.get("metadata") or {}
+                if str(metadata.get("fault_type", "")) != fault_focus:
+                    continue
+                selected.append(item)
+                if len(selected) >= min(2, final_k):
+                    break
+            selected_docs.update(str(item.get("doc_id", "")) for item in selected)
         for item in ranked:
             doc_id = str(item.get("doc_id", ""))
-            if per_doc.get(doc_id, 0) >= per_doc_limit:
+            if doc_id in selected_docs:
                 continue
             selected.append(item)
-            per_doc[doc_id] = per_doc.get(doc_id, 0) + 1
-            if len(selected) >= final_k:
+            selected_docs.add(doc_id)
+            if len(selected) >= diversity_target:
                 break
         if len(selected) < final_k:
             selected_ids = {item.get("chunk_id") for item in selected}

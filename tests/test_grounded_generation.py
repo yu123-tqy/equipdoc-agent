@@ -28,7 +28,7 @@ class GroundedGenerationTests(unittest.TestCase):
 
     def test_grounded_paraphrase_with_sentence_citations_is_valid(self):
         draft = (
-            "## 综合解释\n\n"
+            "## 直接回答\n\n"
             "轴承外圈存在局部缺陷时会形成周期性冲击 "
             "[bearing_outer_race_fault#bearing_outer_race_fault_c001]\n\n"
             "## 现场复核\n\n"
@@ -83,6 +83,51 @@ class GroundedGenerationTests(unittest.TestCase):
         self.assertFalse(validation["valid"])
         self.assertEqual(validation["missing_slots"], ["field_review"])
 
+    def test_negated_maintenance_boundary_cannot_replace_treatment_advice(self):
+        evidence = [
+            {
+                "evidence_id": "E01",
+                "citation": "ball#cause",
+                "text": "滚动体故障的常见原因包括润滑不足、污染和冲击过载。",
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "boundary#no_signal",
+                "text": "资料不足时不得声称已经诊断出滚动体故障，不得编造维修工单。",
+            },
+            {
+                "evidence_id": "E03",
+                "citation": "ball#treatment",
+                "text": "建议检查润滑污染、载荷冲击和安装状态。",
+            },
+        ]
+        rejected = (
+            "滚动体故障的常见原因包括润滑不足、污染和冲击过载 "
+            "[ball#cause]\n\n"
+            "资料不足时不得编造维修工单 [boundary#no_signal]"
+        )
+        validation = validate_grounded_draft(
+            rejected,
+            evidence,
+            question="滚动体发生故障的原因是什么，应该怎么处理",
+        )
+
+        self.assertFalse(validation["valid"])
+        self.assertEqual(validation["missing_slots"], ["maintenance"])
+
+        accepted = (
+            "滚动体故障的常见原因包括润滑不足、污染和冲击过载 "
+            "[ball#cause]\n\n"
+            "建议检查润滑污染、载荷冲击和安装状态 [ball#treatment]"
+        )
+        self.assertTrue(
+            validate_grounded_draft(
+                accepted,
+                evidence,
+                question="滚动体发生故障的原因是什么，应该怎么处理",
+            )["valid"]
+        )
+
     def test_synthesis_prompts_include_only_selected_evidence_and_redact_paths(self):
         messages = build_grounded_synthesis_messages(
             "为什么是外圈故障？",
@@ -113,15 +158,15 @@ class GroundedGenerationTests(unittest.TestCase):
         )
         self.assertIn("uncited_claims", str(retry[-1].content))
 
-    def test_retry_policy_skips_semantically_unsupported_drafts(self):
+    def test_retry_policy_repairs_semantic_and_citation_failures_once(self):
         unsupported = validate_grounded_draft(
             "外圈故障每转只冲击一次 [bearing_outer_race_fault#bearing_outer_race_fault_c001]",
             self.evidence,
         )
-        self.assertFalse(should_retry_grounded_synthesis(unsupported))
+        self.assertTrue(should_retry_grounded_synthesis(unsupported))
 
         zero_citation = validate_grounded_draft("第一版没有引用", self.evidence)
-        self.assertFalse(should_retry_grounded_synthesis(zero_citation))
+        self.assertTrue(should_retry_grounded_synthesis(zero_citation))
 
         partially_cited = validate_grounded_draft(
             "轴承外圈局部缺陷会产生周期性冲击 "

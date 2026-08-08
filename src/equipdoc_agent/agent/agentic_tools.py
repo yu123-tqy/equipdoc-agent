@@ -74,6 +74,7 @@ def search_maintenance_knowledge(
                 "citation": f"{doc_id}#{chunk_id}",
                 "title": str(item.get("title", "")),
                 "text": str(item.get("text", "")),
+                "source_priority": float(item.get("source_priority", 0.0)),
                 "rrf_score": float(item.get("rrf_score", 0.0)),
                 "lexical_score": (
                     float(item["lexical_score"])

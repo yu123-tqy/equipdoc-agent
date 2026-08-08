@@ -35,6 +35,7 @@ class AgentState(TypedDict, total=False):
     messages: Annotated[list, add_messages]
     signal_path: str
     review_result: str
+    retrieval_hits: list[dict]
 
 
 def _last_human_text(messages: list) -> str:
@@ -152,7 +153,10 @@ def build_graph(settings: Settings | None = None):
                 signal_name=Path(signal_path).name if signal_path else "未提供",
                 evidence=evidence,
             )
-            return {"messages": [AIMessage(content=report)]}
+            return {
+                "messages": [AIMessage(content=report)],
+                "retrieval_hits": evidence,
+            }
 
         user_text = _last_human_text(messages)
         signal_path = state.get("signal_path")
@@ -186,7 +190,10 @@ def build_graph(settings: Settings | None = None):
                 f"{snippets}\n\n"
                 "以上为可审计的规则与原文证据，不代表已经诊断或控制真实设备。"
             )
-            return {"messages": [AIMessage(content=content)]}
+            return {
+                "messages": [AIMessage(content=content)],
+                "retrieval_hits": hits,
+            }
 
         if should_run_diagnosis(user_text, signal_path):
             return {
@@ -215,7 +222,7 @@ def build_graph(settings: Settings | None = None):
 
         if settings.demo_mode:
             retriever = get_retriever()
-            hits = retriever.search(user_text, top_k=3) if retriever and user_text else []
+            hits = retriever.search(user_text, top_k=5) if retriever and user_text else []
             if hits:
                 snippets = "\n".join(
                     f"- [{item.get('doc_id')}#{item.get('chunk_id')}]："
@@ -223,12 +230,15 @@ def build_graph(settings: Settings | None = None):
                     for item in hits
                 )
                 content = (
-                    "当前为 Demo 模式，不调用7B模型。以下是词法检索命中的项目知识片段：\n\n"
+                    "当前为 Demo 模式，不调用7B模型。以下是知识库检索命中的项目知识片段：\n\n"
                     f"{snippets}\n\n完整生成回答需要将 EQUIPDOC_DEMO_MODE 设为 false 并配置模型服务。"
                 )
             else:
                 content = "当前为 Demo 模式。请上传 .npy 信号进行固定案例演示，或配置模型服务后进行知识问答。"
-            return {"messages": [AIMessage(content=content)]}
+            return {
+                "messages": [AIMessage(content=content)],
+                "retrieval_hits": hits,
+            }
 
         assert llm is not None
         retriever = get_retriever()
@@ -254,7 +264,8 @@ def build_graph(settings: Settings | None = None):
                             "现场现象或有效技术文档后再判断。"
                         )
                     )
-                ]
+                ],
+                "retrieval_hits": [],
             }
         candidates = build_ranked_evidence_candidates(user_text, hits)
         response = llm.invoke(build_full_rag_messages(user_text, hits))
@@ -289,7 +300,10 @@ def build_graph(settings: Settings | None = None):
         usage_metadata = getattr(response, "usage_metadata", None)
         if usage_metadata:
             message_kwargs["usage_metadata"] = usage_metadata
-        return {"messages": [AIMessage(**message_kwargs)]}
+        return {
+            "messages": [AIMessage(**message_kwargs)],
+            "retrieval_hits": hits,
+        }
 
     def should_continue(state: AgentState):
         last_message = state.get("messages", [])[-1]

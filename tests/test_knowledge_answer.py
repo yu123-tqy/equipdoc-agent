@@ -4,6 +4,7 @@ from equipdoc_agent.agent.knowledge_answer import (
     build_evidence_candidates,
     build_citation_retry_messages,
     build_full_rag_messages,
+    detect_question_requirements,
     extract_citations,
     extract_evidence_selection,
     render_extractive_fallback,
@@ -137,8 +138,119 @@ class KnowledgeAnswerTests(unittest.TestCase):
             candidates,
             selection["selected_ids"],
         )
-        self.assertIn("机理与原因", answer)
-        self.assertIn("现场复核", answer)
+        self.assertIn("## 直接回答", answer)
+        self.assertIn("外圈缺陷会产生周期性冲击", answer)
+        self.assertIn("现场应复核", answer)
+        self.assertIn("## 补充依据", answer)
+
+    def test_ball_fault_question_answers_cause_and_treatment_not_data_boundary(self):
+        question = "滚动体发生故障的原因是什么，应该怎么处理"
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "no_signal#boundary",
+                "text": "资料不足时不得声称已经诊断出滚动体故障，不得编造维修工单。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "ball#cause",
+                "text": "滚动体故障的常见原因包括润滑不足、异物污染、冲击过载和安装偏斜。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E03",
+                "citation": "ball#treatment",
+                "text": "建议检查润滑污染、轴承温度、载荷冲击和安装状态。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E04",
+                "citation": "ball#signal",
+                "text": "滚动体故障可能伴随 BSF 附近能量升高。",
+                "focused_match": True,
+            },
+        ]
+
+        self.assertEqual(
+            detect_question_requirements(question),
+            ["mechanism", "maintenance"],
+        )
+        selection = select_evidence_for_question(question, candidates)
+        self.assertTrue(selection["valid"])
+        self.assertEqual(selection["slot_assignments"]["mechanism"], "E02")
+        self.assertEqual(selection["slot_assignments"]["maintenance"], "E03")
+
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+        direct = answer.split("## 补充依据", maxsplit=1)[0]
+        self.assertIn("常见原因包括", direct)
+        self.assertIn("建议检查", direct)
+        self.assertNotIn("资料不足", direct)
+
+    def test_parameter_fallback_answers_speed_before_listing_contract_evidence(self):
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "plan#speed",
+                "text": "驱动系统可实现0–2000 rpm范围内的稳定运行。",
+                "focused_match": True,
+                "source_priority": 100,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "contract#speed",
+                "text": "转速可调范围不低于0～1400 r/min。",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+        ]
+        question = "试验台的设计转速范围是多少？"
+        selection = select_evidence_for_question(question, candidates, limit=2)
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+
+        direct, supplemental = answer.split("## 补充依据", maxsplit=1)
+        self.assertIn("0–2000 rpm", direct)
+        self.assertNotIn("0～1400 r/min", direct)
+        self.assertIn("0～1400 r/min", supplemental)
+
+    def test_parameter_fallback_formats_both_bearing_models_as_sentences(self):
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "contract#models",
+                "text": "| 1 | 被测推力轴承 | 29412（球面滚子推力轴承） |",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "contract#models",
+                "text": "| 2 | 被测支撑轴承 | NU 212EM（单列圆柱滚子轴承） |",
+                "focused_match": True,
+                "source_priority": 70,
+            },
+        ]
+        question = "试验台使用的轴承型号是什么？"
+        selection = select_evidence_for_question(question, candidates, limit=2)
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+
+        self.assertIn("被测推力轴承型号为 29412", answer)
+        self.assertIn("被测支撑轴承型号为 NU 212EM", answer)
 
     def test_review_ranking_treats_inspection_as_field_review_evidence(self):
         candidates = [
@@ -207,10 +319,11 @@ class KnowledgeAnswerTests(unittest.TestCase):
             selection["selected_ids"],
             selection["slot_assignments"],
         )
-        signal_section, review_section = answer.split("### 现场复核", maxsplit=1)
-        self.assertIn("外圈故障在包络谱中 BPFO", signal_section)
-        self.assertNotIn("外圈故障应复核转速", signal_section)
-        self.assertIn("外圈故障应复核转速", review_section)
+        direct_section, supplemental_section = answer.split("## 补充依据", maxsplit=1)
+        self.assertIn("外圈故障在包络谱中 BPFO", direct_section)
+        self.assertIn("外圈故障应复核转速", direct_section)
+        self.assertNotIn("这是无关", direct_section)
+        self.assertIn("工程上需要结合包络谱", supplemental_section)
 
     def test_causal_connector_is_classified_as_mechanism(self):
         candidates = [

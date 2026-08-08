@@ -55,6 +55,44 @@ ALLOWED_FAULT_TYPES = frozenset(
     }
 )
 
+INTENT_ALIASES = {
+    "project_qa": "knowledge_qa",
+    "technical_query": "knowledge_qa",
+    "document_search": "knowledge_qa",
+    "parameter_lookup": "knowledge_qa",
+    "knowledge_search": "knowledge_qa",
+    "signal_analysis": "signal_inspection",
+    "bearing_diagnosis": "diagnosis",
+}
+TOOL_ALIASES = {
+    "retrieve_knowledge": "search_maintenance_knowledge",
+    "search_documents": "search_maintenance_knowledge",
+    "query_rag": "search_maintenance_knowledge",
+    "knowledge_search": "search_maintenance_knowledge",
+    "analyze_bearing": "diagnose_bearing",
+    "diagnose_signal": "diagnose_bearing",
+    "signal_summary": "inspect_signal",
+}
+EQUIPMENT_ALIASES = {
+    "bearing_test_rig": "bearing",
+    "podded_propulsor_thrust_bearing": "bearing",
+    "podded_propulsor": "rotating_machinery",
+    "test_rig": "rotating_machinery",
+    "gearbox": "pump_gearbox",
+    "pump": "pump_gearbox",
+    "battery": "traction_battery",
+}
+FAULT_TYPE_ALIASES = {
+    "multi_fault": "general",
+    "installation": "maintenance",
+    "selection": "general",
+    "condition_monitoring": "general",
+    "root_cause_analysis": "maintenance",
+    "machine_learning_validation": "dataset",
+    "fracture_cage": "cage",
+    "electrical_erosion": "general",
+}
+
 _PLAN_TOP_LEVEL_FIELDS = frozenset(
     {
         "intent",
@@ -108,6 +146,18 @@ def _reject_unknown_fields(
         raise PlanningValidationError(f"{location} contains unknown fields: {unknown}")
 
 
+def _drop_unknown_fields(
+    payload: dict[str, Any],
+    allowed: frozenset[str],
+    location: str,
+) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    """Keep executable fields and audit ignored model-only decorations."""
+    unknown = sorted(set(payload).difference(allowed))
+    cleaned = {key: deepcopy(value) for key, value in payload.items() if key in allowed}
+    removed = [{"location": location, "field": field} for field in unknown]
+    return cleaned, removed
+
+
 def _clean_text(value: Any, field: str, *, required: bool = False, limit: int = 500) -> str:
     if value is None:
         value = ""
@@ -125,13 +175,22 @@ def _optional_choice(
     value: Any,
     field: str,
     allowed: frozenset[str],
-) -> str | None:
-    if value in {None, ""}:
-        return None
+    *,
+    aliases: dict[str, str] | None = None,
+    drop_unknown: bool = False,
+) -> tuple[str | None, dict[str, str] | None]:
+    if value is None or value == "":
+        return None, None
     cleaned = _clean_text(value, field, required=True, limit=64)
-    if cleaned not in allowed:
+    normalized = (aliases or {}).get(cleaned.lower(), cleaned)
+    if normalized not in allowed:
+        if drop_unknown:
+            return None, {"field": field, "from": cleaned, "to": ""}
         raise PlanningValidationError(f"Unknown {field}: {cleaned}")
-    return cleaned
+    change = None
+    if normalized != cleaned:
+        change = {"field": field, "from": cleaned, "to": normalized}
+    return normalized, change
 
 
 def _bounded_integer(value: Any, field: str, minimum: int, maximum: int) -> int:
@@ -143,12 +202,51 @@ def _bounded_integer(value: Any, field: str, minimum: int, maximum: int) -> int:
 
 
 def _confidence(value: Any) -> float:
+    if value is None or value == "":
+        return 0.0
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise PlanningValidationError("confidence must be a number")
+        if isinstance(value, str):
+            try:
+                value = float(value.strip())
+            except ValueError as exc:
+                raise PlanningValidationError("confidence must be a number") from exc
+        else:
+            raise PlanningValidationError("confidence must be a number")
     normalized = float(value)
-    if not 0.0 <= normalized <= 1.0:
-        raise PlanningValidationError("confidence must be between 0 and 1")
-    return normalized
+    if 1.0 < normalized <= 100.0:
+        normalized /= 100.0
+    return max(0.0, min(1.0, normalized))
+
+
+def _normalized_top_k(value: Any, *, default: int = 5) -> int:
+    if value is None or value == "":
+        return default
+    if isinstance(value, bool):
+        raise PlanningValidationError("top_k must be an integer")
+    if isinstance(value, str):
+        try:
+            value = int(value.strip())
+        except ValueError as exc:
+            raise PlanningValidationError("top_k must be an integer") from exc
+    if not isinstance(value, int):
+        raise PlanningValidationError("top_k must be an integer")
+    return max(1, min(5, value))
+
+
+def _normalize_required_choice(
+    value: Any,
+    field: str,
+    allowed: frozenset[str],
+    aliases: dict[str, str],
+) -> tuple[str, dict[str, str] | None]:
+    cleaned = _clean_text(value, field, required=True, limit=64)
+    normalized = aliases.get(cleaned.lower(), cleaned)
+    if normalized not in allowed:
+        raise PlanningValidationError(f"Unknown {field}: {cleaned}")
+    change = None
+    if normalized != cleaned:
+        change = {"field": field, "from": cleaned, "to": normalized}
+    return normalized, change
 
 
 def extract_json_object(text: str, *, max_chars: int = 65_536) -> dict[str, Any]:
@@ -222,49 +320,84 @@ def _validate_dependencies(steps: list[dict[str, Any]]) -> None:
 def _validate_tool_arguments(
     tool: str,
     arguments: Any,
-) -> tuple[dict[str, Any], list[str]]:
+    *,
+    default_query: str | None = None,
+) -> tuple[dict[str, Any], list[str], list[dict[str, str]]]:
+    if arguments is None:
+        arguments = {}
     if not isinstance(arguments, dict):
         raise PlanningValidationError(f"arguments for {tool} must be an object")
     cleaned = deepcopy(arguments)
     removed: list[str] = []
-    if "signal_path" in cleaned:
-        cleaned.pop("signal_path")
-        removed.append("signal_path")
+    normalized_fields: list[dict[str, str]] = []
 
     if tool in {"diagnose_bearing", "inspect_signal"}:
-        if cleaned:
-            raise PlanningValidationError(
-                f"{tool} does not accept model-provided arguments: {sorted(cleaned)}"
-            )
-        return {}, removed
+        # Signal tools deliberately have no model-controlled parameters.  The
+        # trusted signal path is injected by the graph after planning.
+        removed.extend(sorted(cleaned))
+        return {}, removed, normalized_fields
 
     if tool != "search_maintenance_knowledge":
         raise PlanningValidationError(f"Unknown tool: {tool}")
 
     allowed_fields = frozenset({"query", "equipment", "fault_type", "top_k"})
-    _reject_unknown_fields(cleaned, allowed_fields, f"arguments for {tool}")
-    query = _clean_text(cleaned.get("query"), "query", required=True, limit=500)
-    equipment = _optional_choice(cleaned.get("equipment"), "equipment", ALLOWED_EQUIPMENT)
-    fault_type = _optional_choice(
+    unknown_fields = sorted(set(cleaned).difference(allowed_fields))
+    for field in unknown_fields:
+        cleaned.pop(field, None)
+    removed.extend(unknown_fields)
+
+    query_value = cleaned.get("query")
+    if (query_value is None or query_value == "") and default_query:
+        query = _clean_text(default_query, "query", required=True, limit=500)
+        normalized_fields.append({"field": "query", "from": "", "to": query})
+    else:
+        query = _clean_text(query_value, "query", required=True, limit=500)
+
+    equipment, equipment_change = _optional_choice(
+        cleaned.get("equipment"),
+        "equipment",
+        ALLOWED_EQUIPMENT,
+        aliases=EQUIPMENT_ALIASES,
+        drop_unknown=True,
+    )
+    fault_type, fault_change = _optional_choice(
         cleaned.get("fault_type"),
         "fault_type",
         ALLOWED_FAULT_TYPES,
+        aliases=FAULT_TYPE_ALIASES,
+        drop_unknown=True,
     )
-    top_k = _bounded_integer(cleaned.get("top_k", 5), "top_k", 1, 5)
+    for change in (equipment_change, fault_change):
+        if change is None:
+            continue
+        if not change["to"]:
+            removed.append(change["field"])
+        else:
+            normalized_fields.append(change)
+
+    raw_top_k = cleaned.get("top_k", 5)
+    top_k = _normalized_top_k(raw_top_k)
+    if raw_top_k != top_k:
+        normalized_fields.append(
+            {"field": "top_k", "from": str(raw_top_k), "to": str(top_k)}
+        )
     normalized: dict[str, Any] = {"query": query, "top_k": top_k}
     if equipment is not None:
         normalized["equipment"] = equipment
     if fault_type is not None:
         normalized["fault_type"] = fault_type
-    return normalized, removed
+    return normalized, sorted(set(removed)), normalized_fields
 
 
 def _validate_plan_steps(
     value: Any,
     *,
     max_steps: int,
+    default_query: str | None = None,
 ) -> tuple[
     list[dict[str, Any]],
+    list[dict[str, str]],
+    list[dict[str, str]],
     list[dict[str, str]],
     list[dict[str, str]],
 ]:
@@ -276,34 +409,74 @@ def _validate_plan_steps(
     normalized: list[dict[str, Any]] = []
     removed_arguments: list[dict[str, str]] = []
     removed_dependencies: list[dict[str, str]] = []
+    removed_fields: list[dict[str, str]] = []
+    normalized_fields: list[dict[str, str]] = []
     seen_ids: set[str] = set()
+    id_aliases: dict[str, str] = {}
+    prepared_steps: list[dict[str, Any]] = []
     for index, raw_step in enumerate(value):
         if not isinstance(raw_step, dict):
             raise PlanningValidationError(f"plan[{index}] must be an object")
-        _reject_unknown_fields(raw_step, _PLAN_STEP_FIELDS, f"plan[{index}]")
-        step_id = _clean_text(
-            raw_step.get("step_id"),
-            f"plan[{index}].step_id",
-            required=True,
-            limit=32,
+        cleaned_step, removed = _drop_unknown_fields(
+            raw_step,
+            _PLAN_STEP_FIELDS,
+            f"plan[{index}]",
         )
-        if not _STEP_ID_PATTERN.fullmatch(step_id):
-            raise PlanningValidationError(f"Invalid step_id: {step_id}")
+        removed_fields.extend(removed)
+        raw_step_id = cleaned_step.get("step_id")
+        raw_step_id_text = ""
+        if isinstance(raw_step_id, str):
+            raw_step_id_text = raw_step_id.strip()
+        if raw_step_id_text and _STEP_ID_PATTERN.fullmatch(raw_step_id_text):
+            step_id = raw_step_id_text
+        else:
+            base = f"S{index + 1}"
+            step_id = base
+            suffix = 2
+            while step_id in seen_ids:
+                step_id = f"{base}_{suffix}"
+                suffix += 1
+            normalized_fields.append(
+                {
+                    "field": f"plan[{index}].step_id",
+                    "from": raw_step_id_text,
+                    "to": step_id,
+                }
+            )
         if step_id in seen_ids:
             raise PlanningValidationError(f"Duplicate step_id: {step_id}")
         seen_ids.add(step_id)
+        if raw_step_id_text:
+            if raw_step_id_text in id_aliases:
+                raise PlanningValidationError(f"Duplicate step_id: {raw_step_id_text}")
+            id_aliases[raw_step_id_text] = step_id
+        cleaned_step["step_id"] = step_id
+        prepared_steps.append(cleaned_step)
 
-        tool = _clean_text(
+    for index, raw_step in enumerate(prepared_steps):
+        step_id = str(raw_step["step_id"])
+        tool, tool_change = _normalize_required_choice(
             raw_step.get("tool"),
             f"plan[{index}].tool",
-            required=True,
-            limit=64,
+            ALLOWED_TOOLS,
+            TOOL_ALIASES,
         )
-        if tool not in ALLOWED_TOOLS:
-            raise PlanningValidationError(f"Unknown tool: {tool}")
-        arguments, removed = _validate_tool_arguments(tool, raw_step.get("arguments", {}))
+        if tool_change is not None:
+            normalized_fields.append(tool_change)
+        arguments, removed, argument_changes = _validate_tool_arguments(
+            tool,
+            raw_step.get("arguments", {}),
+            default_query=default_query,
+        )
         for field in removed:
             removed_arguments.append({"step_id": step_id, "field": field})
+        for change in argument_changes:
+            normalized_fields.append(
+                {
+                    **change,
+                    "field": f"plan[{index}].arguments.{change['field']}",
+                }
+            )
 
         raw_dependencies = raw_step.get("depends_on", [])
         if not isinstance(raw_dependencies, list):
@@ -324,6 +497,16 @@ def _validate_plan_steps(
                     {"step_id": step_id, "dependency": dependency_id}
                 )
                 continue
+            normalized_dependency = id_aliases.get(dependency_id, dependency_id)
+            if normalized_dependency != dependency_id:
+                normalized_fields.append(
+                    {
+                        "field": f"plan[{index}].depends_on",
+                        "from": dependency_id,
+                        "to": normalized_dependency,
+                    }
+                )
+            dependency_id = normalized_dependency
             if dependency_id not in depends_on:
                 depends_on.append(dependency_id)
         normalized.append(
@@ -335,7 +518,13 @@ def _validate_plan_steps(
             }
         )
     _validate_dependencies(normalized)
-    return normalized, removed_arguments, removed_dependencies
+    return (
+        normalized,
+        removed_arguments,
+        removed_dependencies,
+        removed_fields,
+        normalized_fields,
+    )
 
 
 def _validate_intent_tool_consistency(intent: str, plan: list[dict[str, Any]]) -> None:
@@ -357,6 +546,33 @@ def _validate_intent_tool_consistency(intent: str, plan: list[dict[str, Any]]) -
         raise PlanningValidationError(f"Intent {intent} requires at least one tool step")
     if intent in {"clarification", "safety_boundary"} and plan:
         raise PlanningValidationError(f"Intent {intent} cannot contain tool steps")
+
+
+def _repair_intent_from_tools(
+    intent: str,
+    plan: list[dict[str, Any]],
+) -> tuple[str, dict[str, str] | None]:
+    """Repair only an unambiguous executable intent/tool mismatch."""
+    try:
+        _validate_intent_tool_consistency(intent, plan)
+        return intent, None
+    except PlanningValidationError:
+        if intent not in {"knowledge_qa", "signal_inspection", "diagnosis"} or not plan:
+            raise
+
+    tools = {str(step.get("tool", "")) for step in plan}
+    if tools == {"search_maintenance_knowledge"}:
+        inferred = "knowledge_qa"
+    elif tools == {"inspect_signal"}:
+        inferred = "signal_inspection"
+    elif "diagnose_bearing" in tools or len(tools) > 1:
+        inferred = "diagnosis"
+    else:
+        raise PlanningValidationError(
+            f"Intent {intent} cannot be repaired from tools: {sorted(tools)}"
+        )
+    _validate_intent_tool_consistency(inferred, plan)
+    return inferred, {"field": "intent", "from": intent, "to": inferred}
 
 
 def _clarification_for_missing_signal(plan: dict[str, Any]) -> dict[str, Any]:
@@ -547,24 +763,72 @@ def parse_and_validate_plan(
 ) -> dict[str, Any]:
     """Parse an LLM plan and return only executable, normalized fields."""
     max_steps = _bounded_integer(max_steps, "max_steps", 1, 4)
-    raw = extract_json_object(text)
-    _reject_unknown_fields(raw, _PLAN_TOP_LEVEL_FIELDS, "plan")
+    extracted = extract_json_object(text)
+    raw, removed_fields = _drop_unknown_fields(extracted, _PLAN_TOP_LEVEL_FIELDS, "plan")
 
-    intent = _clean_text(raw.get("intent"), "intent", required=True, limit=64)
-    if intent not in ALLOWED_INTENTS:
-        raise PlanningValidationError(f"Unknown intent: {intent}")
-    plan_steps, removed_arguments, removed_dependencies = _validate_plan_steps(
+    intent, intent_change = _normalize_required_choice(
+        raw.get("intent"),
+        "intent",
+        ALLOWED_INTENTS,
+        INTENT_ALIASES,
+    )
+    (
+        plan_steps,
+        removed_arguments,
+        removed_dependencies,
+        removed_step_fields,
+        normalized_fields,
+    ) = _validate_plan_steps(
         raw.get("plan", []),
         max_steps=max_steps,
+        default_query=user_text,
     )
+    removed_fields.extend(removed_step_fields)
+    if intent_change is not None:
+        normalized_fields.append(intent_change)
+
+    if not plan_steps and intent == "knowledge_qa" and user_text:
+        safe_query = _clean_text(user_text, "user_text", required=True, limit=500)
+        plan_steps = [
+            {
+                "step_id": "S1",
+                "tool": "search_maintenance_knowledge",
+                "arguments": {"query": safe_query, "top_k": 5},
+                "depends_on": [],
+            }
+        ]
+        normalized_fields.append(
+            {"field": "plan", "from": "[]", "to": "safe knowledge search"}
+        )
+
+    intent, consistency_change = _repair_intent_from_tools(intent, plan_steps)
+    if consistency_change is not None:
+        normalized_fields.append(consistency_change)
+
+    confidence = _confidence(raw.get("confidence"))
+    raw_confidence = raw.get("confidence")
+    if raw_confidence != confidence:
+        normalized_fields.append(
+            {
+                "field": "confidence",
+                "from": "" if raw_confidence is None else str(raw_confidence),
+                "to": str(confidence),
+            }
+        )
+    equipment, equipment_change = _optional_choice(
+        raw.get("equipment"),
+        "equipment",
+        ALLOWED_EQUIPMENT,
+        aliases=EQUIPMENT_ALIASES,
+        drop_unknown=True,
+    )
+    if equipment_change is not None:
+        normalized_fields.append(equipment_change)
+
     normalized = {
         "intent": intent,
-        "confidence": _confidence(raw.get("confidence")),
-        "equipment": _optional_choice(
-            raw.get("equipment"),
-            "equipment",
-            ALLOWED_EQUIPMENT,
-        ),
+        "confidence": confidence,
+        "equipment": equipment,
         "missing_fields": _validate_missing_fields(raw.get("missing_fields", [])),
         "clarification_question": _clean_text(
             raw.get("clarification_question", ""),
@@ -576,6 +840,8 @@ def parse_and_validate_plan(
             "source": "model",
             "removed_arguments": removed_arguments,
             "removed_dependencies": removed_dependencies,
+            "removed_fields": removed_fields,
+            "normalized_fields": normalized_fields,
         },
     }
 
@@ -929,17 +1195,29 @@ def parse_observation_decision(
         "clarification_question",
         limit=500,
     )
-    validation = {"source": "model", "removed_arguments": []}
+    validation = {"source": "model", "removed_arguments": [], "normalized_fields": []}
 
     if action == "call_tool":
         if remaining_steps == 0:
             raise PlanningValidationError("No tool steps remain")
-        tool = _clean_text(raw.get("tool"), "tool", required=True, limit=64)
+        tool, tool_change = _normalize_required_choice(
+            raw.get("tool"),
+            "tool",
+            ALLOWED_TOOLS,
+            TOOL_ALIASES,
+        )
         if tool not in allowed:
             raise PlanningValidationError(f"Tool is not permitted after observation: {tool}")
-        arguments, removed = _validate_tool_arguments(tool, raw.get("arguments", {}))
+        arguments, removed, argument_changes = _validate_tool_arguments(
+            tool,
+            raw.get("arguments", {}),
+        )
         validation["removed_arguments"] = [
             {"tool": tool, "field": field} for field in removed
+        ]
+        validation["normalized_fields"] = [
+            *([tool_change] if tool_change is not None else []),
+            *argument_changes,
         ]
         if tool in {"diagnose_bearing", "inspect_signal"} and not has_signal:
             return {
