@@ -4,6 +4,7 @@ from equipdoc_agent.agent.knowledge_answer import (
     build_evidence_candidates,
     build_citation_retry_messages,
     build_full_rag_messages,
+    detect_question_requirements,
     extract_citations,
     extract_evidence_selection,
     render_extractive_fallback,
@@ -141,6 +142,55 @@ class KnowledgeAnswerTests(unittest.TestCase):
         self.assertIn("外圈缺陷会产生周期性冲击", answer)
         self.assertIn("现场应复核", answer)
         self.assertIn("## 补充依据", answer)
+
+    def test_ball_fault_question_answers_cause_and_treatment_not_data_boundary(self):
+        question = "滚动体发生故障的原因是什么，应该怎么处理"
+        candidates = [
+            {
+                "evidence_id": "E01",
+                "citation": "no_signal#boundary",
+                "text": "资料不足时不得声称已经诊断出滚动体故障。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E02",
+                "citation": "ball#cause",
+                "text": "滚动体故障的常见原因包括润滑不足、异物污染、冲击过载和安装偏斜。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E03",
+                "citation": "ball#treatment",
+                "text": "建议检查润滑污染、轴承温度、载荷冲击和安装状态。",
+                "focused_match": True,
+            },
+            {
+                "evidence_id": "E04",
+                "citation": "ball#signal",
+                "text": "滚动体故障可能伴随 BSF 附近能量升高。",
+                "focused_match": True,
+            },
+        ]
+
+        self.assertEqual(
+            detect_question_requirements(question),
+            ["mechanism", "maintenance"],
+        )
+        selection = select_evidence_for_question(question, candidates)
+        self.assertTrue(selection["valid"])
+        self.assertEqual(selection["slot_assignments"]["mechanism"], "E02")
+        self.assertEqual(selection["slot_assignments"]["maintenance"], "E03")
+
+        answer = render_structured_evidence_answer(
+            question,
+            candidates,
+            selection["selected_ids"],
+            selection["slot_assignments"],
+        )
+        direct = answer.split("## 补充依据", maxsplit=1)[0]
+        self.assertIn("常见原因包括", direct)
+        self.assertIn("建议检查", direct)
+        self.assertNotIn("资料不足", direct)
 
     def test_parameter_fallback_answers_speed_before_listing_contract_evidence(self):
         candidates = [

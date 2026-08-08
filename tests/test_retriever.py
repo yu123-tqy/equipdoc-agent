@@ -49,6 +49,22 @@ class RetrieverTests(unittest.TestCase):
         self.assertIn("29412", hits[0]["text"])
         self.assertIn("NU 212EM", hits[0]["text"])
 
+    def test_ball_fault_cause_and_treatment_recall_both_aspects(self):
+        hits = self.retriever.search(
+            "滚动体发生故障的原因是什么，应该怎么处理",
+            top_k=5,
+        )
+        chunk_ids = [item["chunk_id"] for item in hits]
+
+        self.assertIn("bearing_ball_fault_c001", chunk_ids)
+        self.assertIn("bearing_ball_fault_c003", chunk_ids)
+        self.assertEqual(
+            set(chunk_ids[:2]),
+            {"bearing_ball_fault_c001", "bearing_ball_fault_c003"},
+        )
+        self.assertIn("常见原因包括", hits[chunk_ids.index("bearing_ball_fault_c001")]["text"])
+        self.assertIn("建议检查", hits[chunk_ids.index("bearing_ball_fault_c003")]["text"])
+
 
 if __name__ == "__main__":
     unittest.main()
