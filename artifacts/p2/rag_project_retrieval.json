@@ -1,0 +1,906 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-08T07:22:46+00:00",
+  "evaluation_contract": {
+    "scope": "retrieval only; no answer generation or LLM judge",
+    "relevance_level": "reference_doc_ids",
+    "dense_retrieval": false,
+    "lexical_backend": "bm25",
+    "k_values": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "warnings": [
+      "vector DB unavailable; dense retrieval disabled"
+    ]
+  },
+  "inputs": {
+    "eval_count": 20,
+    "eval_sha256": "8dcd01c392e28fb58f6700c0b51153949174fc14250b68820f25e951c2f66ce5",
+    "chunks_sha256": "82cbcd56c2f6c87fd408cefe465b8c87554e171f38b993f1a99992737b5814c7"
+  },
+  "summary": {
+    "overall": {
+      "count": 20,
+      "hit@1": 0.75,
+      "recall@1": 0.75,
+      "hit@3": 0.85,
+      "recall@3": 0.85,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "hit@10": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.8324999999999999
+    },
+    "by_group": {
+      "contract_supplement": {
+        "count": 6,
+        "hit@1": 0.6666666666666666,
+        "recall@1": 0.6666666666666666,
+        "hit@3": 0.6666666666666666,
+        "recall@3": 0.6666666666666666,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.7333333333333334
+      },
+      "plan_primary": {
+        "count": 14,
+        "hit@1": 0.7857142857142857,
+        "recall@1": 0.7857142857142857,
+        "hit@3": 0.9285714285714286,
+        "recall@3": 0.9285714285714286,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.875
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "plan_speed_range",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch2"
+      ],
+      "retrieved_doc_ids": [
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch5",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch2"
+      ],
+      "retrieved_chunk_ids": [
+        "test_rig_technical_spec_c015",
+        "pod_thrust_bearing_plan_ch2_c008",
+        "pod_thrust_bearing_plan_ch1_c010",
+        "pod_thrust_bearing_plan_ch6_c028",
+        "pod_thrust_bearing_plan_index_c001",
+        "pod_thrust_bearing_plan_ch4_c001",
+        "pod_thrust_bearing_plan_ch5_c034",
+        "test_rig_technical_spec_c004",
+        "pod_thrust_bearing_plan_ch2_c001",
+        "pod_thrust_bearing_plan_ch2_c009"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "plan_rig_composition",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch2"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_basics_and_components",
+        "bearing_failure_analysis_workflow",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch1"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch1_c015",
+        "pod_thrust_bearing_plan_ch2_c008",
+        "pod_thrust_bearing_plan_index_c003",
+        "pod_thrust_bearing_plan_ch3_c006",
+        "bearing_basics_and_components_c002",
+        "bearing_failure_analysis_workflow_c004",
+        "pod_thrust_bearing_plan_ch1_c001",
+        "pod_thrust_bearing_plan_ch3_c007",
+        "pod_thrust_bearing_plan_ch3_c011",
+        "pod_thrust_bearing_plan_ch1_c008"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.5
+      }
+    },
+    {
+      "id": "plan_fault_modes",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch1"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch1",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch1_c015",
+        "test_rig_technical_spec_c007",
+        "pod_thrust_bearing_plan_index_c001",
+        "pod_thrust_bearing_plan_ch1_c005",
+        "pod_thrust_bearing_plan_ch1_c018",
+        "pod_thrust_bearing_plan_ch1_c017",
+        "pod_thrust_bearing_plan_ch1_c006",
+        "pod_thrust_bearing_plan_ch1_c004",
+        "pod_thrust_bearing_plan_ch1_c016",
+        "pod_thrust_bearing_plan_ch1_c012"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_fault_impact",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch1"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch1"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch1_c002",
+        "pod_thrust_bearing_plan_ch2_c004",
+        "pod_thrust_bearing_plan_ch6_c003",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "pod_thrust_bearing_plan_ch1_c003",
+        "pod_thrust_bearing_plan_ch1_c011",
+        "pod_thrust_bearing_plan_ch1_c014",
+        "pod_thrust_bearing_plan_ch1_c005",
+        "pod_thrust_bearing_plan_ch1_c007",
+        "pod_thrust_bearing_plan_ch1_c004"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_fault_manufacturing",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch3"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "roller_bearing_types",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch3_c003",
+        "pod_thrust_bearing_plan_ch1_c007",
+        "pod_thrust_bearing_plan_ch2_c012",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "roller_bearing_types_c005",
+        "pod_thrust_bearing_plan_ch3_c004",
+        "pod_thrust_bearing_plan_ch3_c001",
+        "pod_thrust_bearing_plan_ch3_c006",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "pod_thrust_bearing_plan_ch3_c011"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_multisensor",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch4"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch1",
+        "cwru_bearing_dataset_boundaries",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch4"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch4_c001",
+        "pod_thrust_bearing_plan_ch1_c016",
+        "cwru_bearing_dataset_boundaries_c003",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "pod_thrust_bearing_plan_ch4_c012",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "pod_thrust_bearing_plan_ch4_c006",
+        "pod_thrust_bearing_plan_ch4_c002",
+        "pod_thrust_bearing_plan_ch4_c013",
+        "pod_thrust_bearing_plan_ch4_c010"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_time_features",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch5"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch5"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch5_c015",
+        "pod_thrust_bearing_plan_index_c007",
+        "pod_thrust_bearing_plan_ch5_c017",
+        "pod_thrust_bearing_plan_ch5_c025",
+        "pod_thrust_bearing_plan_ch5_c029",
+        "pod_thrust_bearing_plan_ch5_c011",
+        "pod_thrust_bearing_plan_ch5_c019",
+        "pod_thrust_bearing_plan_ch5_c013",
+        "pod_thrust_bearing_plan_ch5_c021",
+        "pod_thrust_bearing_plan_ch5_c023"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_frequency_features",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch5"
+      ],
+      "retrieved_doc_ids": [
+        "bearing_vibration_features_frequencies",
+        "vibration_signal_features",
+        "bearing_outer_race_fault",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_inner_race_fault",
+        "bearing_vibration_features_frequencies",
+        "bearing_vibration_features_frequencies",
+        "bearing_vibration_features_frequencies",
+        "bearing_vibration_features_frequencies"
+      ],
+      "retrieved_chunk_ids": [
+        "bearing_vibration_features_frequencies_c002",
+        "vibration_signal_features_c001",
+        "bearing_outer_race_fault_c001",
+        "pod_thrust_bearing_plan_ch5_c003",
+        "pod_thrust_bearing_plan_ch6_c006",
+        "bearing_inner_race_fault_c001",
+        "bearing_vibration_features_frequencies_c004",
+        "bearing_vibration_features_frequencies_c005",
+        "bearing_vibration_features_frequencies_c001",
+        "bearing_vibration_features_frequencies_c003"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.25
+      }
+    },
+    {
+      "id": "plan_ovmd_xgboost",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c037",
+        "pod_thrust_bearing_plan_ch4_c004",
+        "pod_thrust_bearing_plan_index_c010",
+        "pod_thrust_bearing_plan_ch5_c014",
+        "pod_thrust_bearing_plan_ch3_c009",
+        "pod_thrust_bearing_plan_ch6_c030",
+        "pod_thrust_bearing_plan_ch6_c039",
+        "pod_thrust_bearing_plan_ch6_c040",
+        "pod_thrust_bearing_plan_ch6_c032",
+        "pod_thrust_bearing_plan_ch6_c038"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_sart_1dcnn",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_basics_and_components",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c058",
+        "bearing_basics_and_components_c004",
+        "pod_thrust_bearing_plan_ch6_c048",
+        "pod_thrust_bearing_plan_ch6_c060",
+        "pod_thrust_bearing_plan_ch6_c052",
+        "pod_thrust_bearing_plan_ch6_c042",
+        "pod_thrust_bearing_plan_ch6_c056",
+        "pod_thrust_bearing_plan_ch6_c046",
+        "pod_thrust_bearing_plan_ch6_c054",
+        "pod_thrust_bearing_plan_ch6_c050"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_quantum_ml",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch4",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c003",
+        "pod_thrust_bearing_plan_index_c008",
+        "pod_thrust_bearing_plan_ch5_c009",
+        "pod_thrust_bearing_plan_ch4_c009",
+        "test_rig_technical_spec_c001",
+        "pod_thrust_bearing_plan_ch6_c005",
+        "pod_thrust_bearing_plan_ch6_c004",
+        "pod_thrust_bearing_plan_ch6_c001",
+        "pod_thrust_bearing_plan_ch6_c007",
+        "pod_thrust_bearing_plan_ch6_c002"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_hybrid_model",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c011",
+        "pod_thrust_bearing_plan_index_c008",
+        "pod_thrust_bearing_plan_ch5_c005",
+        "pod_thrust_bearing_plan_ch1_c001",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "pod_thrust_bearing_plan_ch6_c009",
+        "pod_thrust_bearing_plan_ch6_c010",
+        "pod_thrust_bearing_plan_ch6_c015",
+        "pod_thrust_bearing_plan_ch6_c012",
+        "pod_thrust_bearing_plan_ch6_c014"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_neural_ode",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c020",
+        "pod_thrust_bearing_plan_ch1_c018",
+        "pod_thrust_bearing_plan_index_c009",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "pod_thrust_bearing_plan_ch5_c028",
+        "pod_thrust_bearing_plan_ch6_c019",
+        "pod_thrust_bearing_plan_ch6_c017",
+        "pod_thrust_bearing_plan_ch6_c021",
+        "pod_thrust_bearing_plan_ch6_c016",
+        "pod_thrust_bearing_plan_ch6_c018"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "plan_maml",
+      "group": "plan_primary",
+      "reference_doc_ids": [
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch4",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch6"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch6_c028",
+        "pod_thrust_bearing_plan_index_c009",
+        "pod_thrust_bearing_plan_ch4_c003",
+        "pod_thrust_bearing_plan_ch2_c002",
+        "pod_thrust_bearing_plan_ch3_c003",
+        "pod_thrust_bearing_plan_ch6_c024",
+        "pod_thrust_bearing_plan_ch6_c025",
+        "pod_thrust_bearing_plan_ch6_c022",
+        "pod_thrust_bearing_plan_ch6_c023",
+        "pod_thrust_bearing_plan_ch6_c027"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "contract_29412",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "thrust_and_axial_bearings",
+        "pod_thrust_bearing_plan_ch6",
+        "pod_thrust_bearing_plan_ch3",
+        "bearing_lubrication_management",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch5",
+        "pod_thrust_bearing_plan_ch2",
+        "thrust_and_axial_bearings",
+        "thrust_and_axial_bearings",
+        "thrust_and_axial_bearings"
+      ],
+      "retrieved_chunk_ids": [
+        "thrust_and_axial_bearings_c001",
+        "pod_thrust_bearing_plan_ch6_c058",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "bearing_lubrication_management_c005",
+        "test_rig_technical_spec_c003",
+        "pod_thrust_bearing_plan_ch5_c050",
+        "pod_thrust_bearing_plan_ch2_c012",
+        "thrust_and_axial_bearings_c002",
+        "thrust_and_axial_bearings_c004",
+        "thrust_and_axial_bearings_c005"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.2
+      }
+    },
+    {
+      "id": "contract_nu212em",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch6",
+        "roller_bearing_types",
+        "pod_thrust_bearing_plan_ch2",
+        "thrust_and_axial_bearings",
+        "pod_thrust_bearing_plan_ch5",
+        "bearing_basics_and_components",
+        "pod_thrust_bearing_plan_ch4",
+        "roller_bearing_types",
+        "roller_bearing_types"
+      ],
+      "retrieved_chunk_ids": [
+        "test_rig_technical_spec_c003",
+        "pod_thrust_bearing_plan_ch6_c058",
+        "roller_bearing_types_c004",
+        "pod_thrust_bearing_plan_ch2_c012",
+        "thrust_and_axial_bearings_c001",
+        "pod_thrust_bearing_plan_ch5_c050",
+        "bearing_basics_and_components_c002",
+        "pod_thrust_bearing_plan_ch4_c013",
+        "roller_bearing_types_c005",
+        "roller_bearing_types_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "contract_fault_bearing_count",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch3",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec"
+      ],
+      "retrieved_chunk_ids": [
+        "test_rig_technical_spec_c012",
+        "pod_thrust_bearing_plan_ch3_c011",
+        "test_rig_technical_spec_c015",
+        "test_rig_technical_spec_c009",
+        "test_rig_technical_spec_c002",
+        "test_rig_technical_spec_c007",
+        "test_rig_technical_spec_c003",
+        "test_rig_technical_spec_c008",
+        "test_rig_technical_spec_c013",
+        "test_rig_technical_spec_c001"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "contract_pitting_size",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch6",
+        "bearing_fault_severity_trending",
+        "pod_thrust_bearing_plan_index",
+        "pod_thrust_bearing_plan_ch1",
+        "pod_thrust_bearing_plan_ch4",
+        "test_rig_technical_spec",
+        "pod_thrust_bearing_plan_ch3",
+        "pod_thrust_bearing_plan_ch3"
+      ],
+      "retrieved_chunk_ids": [
+        "test_rig_technical_spec_c007",
+        "pod_thrust_bearing_plan_ch3_c006",
+        "pod_thrust_bearing_plan_ch6_c058",
+        "bearing_fault_severity_trending_c004",
+        "pod_thrust_bearing_plan_index_c003",
+        "pod_thrust_bearing_plan_ch1_c016",
+        "pod_thrust_bearing_plan_ch4_c001",
+        "test_rig_technical_spec_c008",
+        "pod_thrust_bearing_plan_ch3_c002",
+        "pod_thrust_bearing_plan_ch3_c004"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    },
+    {
+      "id": "contract_acceptance",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "pod_thrust_bearing_plan_ch3",
+        "roller_bearing_types",
+        "bearing_vibration_measurement_quality",
+        "pod_thrust_bearing_plan_ch2",
+        "test_rig_technical_spec",
+        "bearing_basics_and_components",
+        "ball_bearing_types",
+        "pod_thrust_bearing_plan_ch6",
+        "test_rig_technical_spec",
+        "test_rig_technical_spec"
+      ],
+      "retrieved_chunk_ids": [
+        "pod_thrust_bearing_plan_ch3_c001",
+        "roller_bearing_types_c001",
+        "bearing_vibration_measurement_quality_c001",
+        "pod_thrust_bearing_plan_ch2_c004",
+        "test_rig_technical_spec_c010",
+        "bearing_basics_and_components_c003",
+        "ball_bearing_types_c005",
+        "pod_thrust_bearing_plan_ch6_c063",
+        "test_rig_technical_spec_c011",
+        "test_rig_technical_spec_c013"
+      ],
+      "metrics": {
+        "hit@1": 0.0,
+        "recall@1": 0.0,
+        "hit@3": 0.0,
+        "recall@3": 0.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 0.2
+      }
+    },
+    {
+      "id": "contract_power_safety",
+      "group": "contract_supplement",
+      "reference_doc_ids": [
+        "test_rig_technical_spec"
+      ],
+      "retrieved_doc_ids": [
+        "test_rig_technical_spec",
+        "bearing_corrosion_fretting_false_brinelling",
+        "bearing_rag_answer_boundaries",
+        "bearing_lubrication_management",
+        "pod_thrust_bearing_plan_ch2",
+        "pod_thrust_bearing_plan_ch4",
+        "bearing_mounting_fits_alignment",
+        "pod_thrust_bearing_plan_ch1",
+        "bearing_rag_answer_boundaries",
+        "bearing_sealing_contamination_storage"
+      ],
+      "retrieved_chunk_ids": [
+        "test_rig_technical_spec_c010",
+        "bearing_corrosion_fretting_false_brinelling_c005",
+        "bearing_rag_answer_boundaries_c004",
+        "bearing_lubrication_management_c002",
+        "pod_thrust_bearing_plan_ch2_c005",
+        "pod_thrust_bearing_plan_ch4_c012",
+        "bearing_mounting_fits_alignment_c005",
+        "pod_thrust_bearing_plan_ch1_c015",
+        "bearing_rag_answer_boundaries_c001",
+        "bearing_sealing_contamination_storage_c003"
+      ],
+      "metrics": {
+        "hit@1": 1.0,
+        "recall@1": 1.0,
+        "hit@3": 1.0,
+        "recall@3": 1.0,
+        "hit@5": 1.0,
+        "recall@5": 1.0,
+        "hit@10": 1.0,
+        "recall@10": 1.0,
+        "mrr@10": 1.0
+      }
+    }
+  ]
+}

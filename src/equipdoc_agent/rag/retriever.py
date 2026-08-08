@@ -62,6 +62,15 @@ def _matches_filters(item: dict[str, Any], filters: dict[str, str] | None) -> bo
     return True
 
 
+def _source_priority(item: dict[str, Any]) -> float:
+    """Return the explicit source precedence used for near-tie reranking."""
+    raw = (item.get("metadata") or {}).get("source_priority", 0)
+    try:
+        return max(0.0, min(100.0, float(raw)))
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _rrf(rankings: list[list[str]], k: int = 60) -> dict[str, float]:
     scores: dict[str, float] = {}
     for ranking in rankings:
@@ -217,21 +226,31 @@ class KnowledgeRetriever:
             chunk_id = item["chunk_id"]
             merged.setdefault(chunk_id, {}).update(item)
             merged[chunk_id]["rrf_score"] = scores.get(chunk_id, 0.0)
+            priority = _source_priority(item)
+            merged[chunk_id]["source_priority"] = priority
+            # Priority is deliberately only a near-tie breaker.  With RRF k=60,
+            # dividing by one million cannot jump an otherwise relevant result
+            # several lexical ranks merely because its source is more authoritative.
+            merged[chunk_id]["rank_score"] = scores.get(chunk_id, 0.0) + priority / 1_000_000.0
         ranked = sorted(
             merged.values(),
-            key=lambda item: item.get("rrf_score", 0.0),
+            key=lambda item: item.get("rank_score", 0.0),
             reverse=True,
         )
+        # The corpus contains several chunks per document.  Reserve at least 80%
+        # of top-k for distinct documents, then let the remaining slots recover
+        # complementary chunks from the same source (for example, mechanism and
+        # field-review evidence stored under separate headings).
         selected = []
-        per_doc: dict[str, int] = {}
-        per_doc_limit = 3 if final_k >= 5 else 2
+        selected_docs: set[str] = set()
+        diversity_target = max(1, (final_k * 4 + 4) // 5)
         for item in ranked:
             doc_id = str(item.get("doc_id", ""))
-            if per_doc.get(doc_id, 0) >= per_doc_limit:
+            if doc_id in selected_docs:
                 continue
             selected.append(item)
-            per_doc[doc_id] = per_doc.get(doc_id, 0) + 1
-            if len(selected) >= final_k:
+            selected_docs.add(doc_id)
+            if len(selected) >= diversity_target:
                 break
         if len(selected) < final_k:
             selected_ids = {item.get("chunk_id") for item in selected}
