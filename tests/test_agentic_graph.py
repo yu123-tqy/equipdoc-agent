@@ -94,6 +94,34 @@ def _knowledge_plan():
     )
 
 
+def _relaxed_project_plan():
+    return json.dumps(
+        {
+            "intent": "project_qa",
+            "confidence": "90",
+            "equipment": "bearing_test_rig",
+            "missing_fields": [],
+            "clarification_question": "",
+            "reasoning": "look up the test-rig parameter",
+            "plan": [
+                {
+                    "step_id": "retrieve project document",
+                    "tool": "query_rag",
+                    "arguments": {
+                        "query": "",
+                        "equipment": "podded_propulsor_thrust_bearing",
+                        "top_k": "9",
+                        "source_id": "pod_thrust_bearing_plan",
+                    },
+                    "depends_on": [],
+                    "description": "retrieve the source document",
+                }
+            ],
+        },
+        ensure_ascii=False,
+    )
+
+
 def _diagnosis_plan():
     return json.dumps(
         {
@@ -268,6 +296,37 @@ class AgenticGraphTests(unittest.TestCase):
             result["retrieval_hits"][0]["chunk_id"],
             "bearing_outer_race_fault_c001",
         )
+
+    def test_repairable_project_plan_does_not_retry_or_fall_back(self):
+        with tempfile.TemporaryDirectory() as temp_dir, patch.dict(os.environ, {}, clear=True):
+            settings = self._settings(Path(temp_dir))
+            llm = _FakeLLM([_relaxed_project_plan(), _grounded_draft()])
+            graph = build_agentic_graph(
+                settings,
+                llm=llm,
+                retriever=_FakeRetriever(),
+            )
+            result = graph.invoke(
+                {
+                    "messages": [
+                        HumanMessage(content="What is the test-rig design speed range?")
+                    ],
+                },
+                config={"configurable": {"thread_id": "relaxed_project_plan"}},
+            )
+
+        self.assertEqual(result["planning_metadata"]["generation_path"], "first_pass")
+        self.assertEqual(result["planning_metadata"]["attempts"], 1)
+        self.assertEqual(
+            result["current_plan"]["plan"][0]["tool"],
+            "search_maintenance_knowledge",
+        )
+        self.assertEqual(
+            result["current_plan"]["plan"][0]["arguments"],
+            {"query": "What is the test-rig design speed range?", "top_k": 5},
+        )
+        self.assertEqual(len(llm.calls), 2)
+        self.assertNotIn("规划降级", result["messages"][-1].content)
 
     def test_overclarified_knowledge_question_is_retried_and_searched(self):
         overclarification = json.dumps(

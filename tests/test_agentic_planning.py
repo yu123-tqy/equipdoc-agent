@@ -52,6 +52,94 @@ class AgenticPlanningTests(unittest.TestCase):
         self.assertEqual(plan["plan"][0]["arguments"]["top_k"], 5)
         self.assertEqual(plan["validation"]["source"], "model")
 
+    def test_project_plan_aliases_and_decorations_are_safely_normalized(self):
+        payload = {
+            "intent": "project_qa",
+            "confidence": "90",
+            "equipment": "bearing_test_rig",
+            "missing_fields": [],
+            "clarification_question": "",
+            "reasoning": "查询试验台技术参数",
+            "plan": [
+                {
+                    "step_id": "检索步骤一",
+                    "tool": "query_rag",
+                    "arguments": {
+                        "query": "",
+                        "equipment": "podded_propulsor_thrust_bearing",
+                        "fault_type": "multi_fault",
+                        "top_k": "9",
+                        "source_id": "pod_thrust_bearing_plan",
+                    },
+                    "depends_on": [],
+                    "description": "检索项目方案",
+                }
+            ],
+        }
+        question = "吊舱推进器推力轴承故障诊断试验台的设计转速范围是多少？"
+        plan = parse_and_validate_plan(
+            json.dumps(payload, ensure_ascii=False),
+            user_text=question,
+        )
+
+        self.assertEqual(plan["intent"], "knowledge_qa")
+        self.assertEqual(plan["confidence"], 0.9)
+        self.assertEqual(plan["equipment"], "bearing")
+        self.assertEqual(plan["plan"][0]["step_id"], "S1")
+        self.assertEqual(plan["plan"][0]["tool"], "search_maintenance_knowledge")
+        self.assertEqual(plan["plan"][0]["arguments"], {"query": question, "top_k": 5})
+        self.assertIn(
+            {"location": "plan", "field": "reasoning"},
+            plan["validation"]["removed_fields"],
+        )
+        self.assertIn(
+            {"location": "plan[0]", "field": "description"},
+            plan["validation"]["removed_fields"],
+        )
+        self.assertIn(
+            {"step_id": "S1", "field": "source_id"},
+            plan["validation"]["removed_arguments"],
+        )
+
+    def test_signal_tool_alias_drops_all_model_controlled_arguments(self):
+        payload = json.loads(_plan_text())
+        payload.update(
+            {
+                "intent": "bearing_diagnosis",
+                "equipment": "podded_propulsor_thrust_bearing",
+                "plan": [
+                    {
+                        "step_id": "S1",
+                        "tool": "analyze_bearing",
+                        "arguments": {
+                            "signal_path": "/private/signal.npy",
+                            "threshold": 0.8,
+                            "model": "custom",
+                        },
+                        "depends_on": [],
+                    }
+                ],
+            }
+        )
+        plan = parse_and_validate_plan(
+            json.dumps(payload, ensure_ascii=False),
+            has_signal=True,
+            user_text="请诊断当前轴承信号。",
+        )
+
+        self.assertEqual(plan["intent"], "diagnosis")
+        self.assertEqual(plan["equipment"], "bearing")
+        self.assertEqual(plan["plan"][0]["tool"], "diagnose_bearing")
+        self.assertEqual(plan["plan"][0]["arguments"], {})
+        self.assertEqual(
+            plan["validation"]["removed_arguments"],
+            [
+                {"step_id": "S1", "field": "model"},
+                {"step_id": "S1", "field": "signal_path"},
+                {"step_id": "S1", "field": "threshold"},
+            ],
+        )
+
     def test_remembered_signal_cannot_turn_a_knowledge_question_into_diagnosis(self):
         diagnosis_plan = _plan_text(
             intent="diagnosis",
@@ -222,7 +310,7 @@ class AgenticPlanningTests(unittest.TestCase):
         with self.assertRaisesRegex(PlanningValidationError, "unknown steps"):
             parse_and_validate_plan(text, has_signal=True)
 
-    def test_unknown_tool_and_unknown_arguments_are_rejected(self):
+    def test_unknown_tool_is_rejected_and_unknown_search_arguments_are_dropped(self):
         unknown_tool = _plan_text(
             plan=[
                 {
@@ -236,11 +324,14 @@ class AgenticPlanningTests(unittest.TestCase):
         with self.assertRaises(PlanningValidationError):
             parse_and_validate_plan(unknown_tool)
 
-        unknown_argument = _plan_text()
-        payload = json.loads(unknown_argument)
+        payload = json.loads(_plan_text())
         payload["plan"][0]["arguments"]["server_path"] = "/tmp/private"
-        with self.assertRaises(PlanningValidationError):
-            parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
+        plan = parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
+        self.assertNotIn("server_path", plan["plan"][0]["arguments"])
+        self.assertIn(
+            {"step_id": "S1", "field": "server_path"},
+            plan["validation"]["removed_arguments"],
+        )
 
     def test_step_limit_duplicate_id_and_dependency_cycle_are_rejected(self):
         step = {
@@ -277,8 +368,13 @@ class AgenticPlanningTests(unittest.TestCase):
     def test_search_parameters_are_bounded(self):
         payload = json.loads(_plan_text())
         payload["plan"][0]["arguments"]["top_k"] = 6
-        with self.assertRaises(PlanningValidationError):
-            parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
+        plan = parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
+        self.assertEqual(plan["plan"][0]["arguments"]["top_k"], 5)
+
+        payload["plan"][0]["arguments"]["top_k"] = "2"
+        plan = parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
+        self.assertEqual(plan["plan"][0]["arguments"]["top_k"], 2)
+
         payload["plan"][0]["arguments"]["top_k"] = True
         with self.assertRaises(PlanningValidationError):
             parse_and_validate_plan(json.dumps(payload, ensure_ascii=False))
