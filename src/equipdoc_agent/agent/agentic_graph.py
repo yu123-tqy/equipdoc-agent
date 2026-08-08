@@ -55,6 +55,7 @@ class AgenticState(TypedDict, total=False):
     observation_metadata: dict[str, Any]
     answer_metadata: dict[str, Any]
     safety_decision: dict[str, str]
+    retrieval_hits: list[dict[str, Any]]
 
 
 def _last_human_text(messages: list) -> str:
@@ -445,6 +446,7 @@ def build_agentic_graph(
             "answer_metadata": {},
             "review_result": "",
             "signal_path": signal_path,
+            "retrieval_hits": [],
         }
 
     def route_after_planner(state: AgenticState):
@@ -841,6 +843,7 @@ def build_agentic_graph(
                 )
             ],
             "answer_metadata": metadata,
+            "retrieval_hits": hits[:5],
         }
 
     graph = StateGraph(AgenticState)

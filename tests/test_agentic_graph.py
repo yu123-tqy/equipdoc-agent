@@ -263,6 +263,11 @@ class AgenticGraphTests(unittest.TestCase):
             result["answer_metadata"]["answer_guard"]["generation_path"],
             "grounded_synthesis",
         )
+        self.assertEqual(len(result["retrieval_hits"]), 3)
+        self.assertEqual(
+            result["retrieval_hits"][0]["chunk_id"],
+            "bearing_outer_race_fault_c001",
+        )
 
     def test_overclarified_knowledge_question_is_retried_and_searched(self):
         overclarification = json.dumps(

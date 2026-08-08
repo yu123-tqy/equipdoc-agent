@@ -47,6 +47,8 @@ class FullRagGraphTests(unittest.TestCase):
         self.assertIn("BPFO", combined_prompt)
         self.assertIn("周期性冲击", result["messages"][-1].content)
         self.assertNotIn("BPFI", result["messages"][-1].content)
+        self.assertEqual(len(result["retrieval_hits"]), 5)
+        self.assertTrue(all(item.get("chunk_id") for item in result["retrieval_hits"]))
 
     def test_ball_fault_first_four_cover_spectrum_and_review(self):
         with patch("equipdoc_agent.agent.graph.ChatOpenAI") as chat_class:
