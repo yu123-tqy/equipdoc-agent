@@ -299,6 +299,7 @@ def build_agentic_graph(
     *,
     llm: Any | None = None,
     retriever: KnowledgeRetriever | None = None,
+    checkpointer=None,
 ):
     if settings.demo_mode:
         raise ValueError("Agentic graph is available only when demo_mode is false.")
@@ -870,4 +871,4 @@ def build_agentic_graph(
     graph.add_edge("clarification", END)
     graph.add_edge("cancel", END)
     graph.add_edge("synthesizer", END)
-    return graph.compile(checkpointer=MemorySaver())
+    return graph.compile(checkpointer=checkpointer or MemorySaver())

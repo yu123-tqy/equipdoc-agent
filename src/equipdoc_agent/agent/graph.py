@@ -96,12 +96,14 @@ def _review_call_payload(call: dict) -> dict:
     return {"name": call.get("name"), "args": args}
 
 
-def build_graph(settings: Settings | None = None):
+def build_graph(settings: Settings | None = None, *, checkpointer=None):
     settings = settings or Settings.from_env()
     if not settings.demo_mode and settings.agentic_mode:
         from .agentic_graph import build_agentic_graph
 
-        return build_agentic_graph(settings)
+        if checkpointer is None:
+            return build_agentic_graph(settings)
+        return build_agentic_graph(settings, checkpointer=checkpointer)
     retriever_holder: dict[str, KnowledgeRetriever] = {}
 
     def get_retriever() -> KnowledgeRetriever | None:
@@ -357,4 +359,4 @@ def build_graph(settings: Settings | None = None):
     graph.add_conditional_edges("review", after_review)
     graph.add_edge("tools", "agent")
     graph.add_edge("cancel", END)
-    return graph.compile(checkpointer=MemorySaver())
+    return graph.compile(checkpointer=checkpointer or MemorySaver())
