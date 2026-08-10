@@ -1,11 +1,14 @@
 # EquipDoc-Agent RAG 知识库扩展与演示交接文档
 
-> 更新时间：2026-08-08  
-> 当前交接分支：`codex/rag-knowledge-expansion`  
-> 当前交接基线：`77af5d2`（`fix(ui): add task cancellation and require treatment advice`）  
-> GitHub：https://github.com/yu123-tqy/equipdoc-agent.git  
-> Windows 工作仓库：`C:\Users\MSI\Documents\秋招简历\projects\equipdoc-agent-portfolio`  
-> AutoDL 演示仓库：`/root/autodl-tmp/equipdoc-agent-rag-demo`
+> 更新时间：2026-08-08
+>
+> 发布分支：`main`
+>
+> GitHub：https://github.com/yu123-tqy/equipdoc-agent.git
+>
+> 本地仓库示例：`<本地工作目录>/equipdoc-agent`
+>
+> AutoDL 演示仓库示例：`/root/autodl-tmp/equipdoc-agent-final-demo`
 
 ## 1. 交接结论
 
@@ -221,7 +224,7 @@ EquipDoc-Agent 是一个面向机电设备运维的受约束 Agent，主要包�
 4. 进入仓库时必须使用 `cd`，不能直接执行目录：
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 ```
 
 ### 8.2 同步 GitHub 最新代码
@@ -229,20 +232,20 @@ cd /root/autodl-tmp/equipdoc-agent-rag-demo
 在终端 B 执行：
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 
 git status --short --branch
 git branch --show-current
 git fetch origin
-git pull --ff-only origin codex/rag-knowledge-expansion
+git pull --ff-only origin main
 git log -3 --oneline
 ```
 
 正常结果应满足：
 
-- 分支为 `codex/rag-knowledge-expansion`。
-- HEAD 不低于 `77af5d2`。
+- 分支为 `main`。
+- HEAD 与 `origin/main` 一致。
 - `artifacts/p2/service_check_latest.json` 等运行产物即使是 untracked，也不影响 `--ff-only` 拉取。
 
 如果出现已跟踪代码文件被修改，不要使用 `git reset --hard`。先执行 `git status`，确认修改来源，再决定备份、提交或恢复。
@@ -250,7 +253,7 @@ git log -3 --oneline
 ### 8.3 激活环境并核对资源
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 
 ls -lh /root/autodl-tmp/equipdoc-agent/models/bearing_cnn.pth
@@ -318,7 +321,7 @@ grep -E '^EQUIPDOC_(DEMO_MODE|AGENTIC_MODE|LLM_BASE_URL|LLM_MODEL|BEARING_MODEL_
 需要重建时，在终端 B 执行：
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
@@ -345,7 +348,7 @@ curl -s http://127.0.0.1:8001/v1/models
 如果能够返回 `qwen-equipdoc`，无需重复启动。若连接失败，执行：
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
@@ -368,7 +371,7 @@ Uvicorn running on http://127.0.0.1:8001
 ### 8.7 终端 B：服务和健康检查
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 
 python scripts/check_full_service.py \
@@ -390,7 +393,7 @@ python -m equipdoc_agent.health --strict
 ### 8.8 终端 C：启动 Gradio 页面
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 python app_gradio.py
 ```
@@ -470,7 +473,7 @@ http://127.0.0.1:7860
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| `...equipdoc-agent-rag-demo: Is a directory` | 把目录当命令执行 | 使用 `cd /root/autodl-tmp/equipdoc-agent-rag-demo` |
+| `...equipdoc-agent-final-demo: Is a directory` | 把目录当命令执行 | 使用 `cd /root/autodl-tmp/equipdoc-agent-final-demo` |
 | Qwen 连接拒绝 | 8001 服务未启动 | 在终端 A 启动 `serve_qwen_openai.py` |
 | Qwen 启动后终端不能继续输入 | 服务需要占用前台 | 保持终端 A，另开终端 B/C |
 | 页面没有停止按钮或 Top 5 | 旧 Gradio 进程或浏览器缓存 | 拉取最新分支、重启 Gradio、`Ctrl+F5` |
@@ -532,7 +535,7 @@ http://127.0.0.1:7860
 ### 终端 A
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
 python scripts/serve_qwen_openai.py \
@@ -545,7 +548,7 @@ python scripts/serve_qwen_openai.py \
 ### 终端 B
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 python scripts/check_full_service.py \
   --base-url http://127.0.0.1:8001/v1 \
@@ -557,7 +560,7 @@ python -m equipdoc_agent.health --strict
 ### 终端 C
 
 ```bash
-cd /root/autodl-tmp/equipdoc-agent-rag-demo
+cd /root/autodl-tmp/equipdoc-agent-final-demo
 source .venv/bin/activate
 python app_gradio.py
 ```
