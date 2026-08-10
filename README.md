@@ -20,7 +20,7 @@
 | 工具能力 | `.npy` 信号校验、CNN 诊断接口、知识检索、报告生成 |
 | 安全边界 | 上传沙箱、大小与数值检查、路径白名单、显式降级 |
 | 运行方式 | 本地 Gradio、Docker、AutoDL Full 模式 |
-| 当前证据 | 127 项单元测试、三次 13-turn 面试 Demo、56-case / 64-turn 正式评测、失败演进和限制说明 |
+| 当前证据 | 167 项单元测试、三次 13-turn 面试 Demo、56-case / 64-turn 正式评测、失败演进和限制说明 |
 
 ## 为什么需要这个 Agent
 
@@ -47,7 +47,12 @@ flowchart LR
 - **显式降级**：缺少 Qwen、CNN 权重或 Chroma 时不静默伪装，Demo 模式和词法检索会明确标注；
 - **证据化输出**：报告区分输入事实、工具结果、检索依据、建议和适用边界；
 - **可选 Agentic 链路**：Full 模式下可启用结构化意图规划、三工具白名单、观察后决策、主动澄清和短期任务记忆；
+- **可检索历史会话**：侧栏支持标题/正文搜索、分页、新建、切换、重命名、归档、恢复和确认后永久删除，重启后继续保留完整消息、Top 5 快照与待审核任务；
+- **多用户与生产存储**：可选 Gradio 登录，服务端按登录账号隔离所有会话、消息和运行状态；本地默认 SQLite，部署时可切换 PostgreSQL；
+- **长会话压缩**：用户可见历史始终完整保存，Agent 每隔固定轮数换代 checkpoint，并通过“旧消息摘要 + 最近消息 + 结构化任务记忆”延续上下文；
 - **可复现工程骨架**：包含 `pyproject.toml`、环境变量、Docker、健康检查、Smoke Test 和 CI。
+
+未配置登录时使用 `local` 命名空间，适合个人演示；公共部署应配置 `EQUIPDOC_AUTH_USERS` 并使用 PostgreSQL。Gradio 基础登录适合作品演示，不等同于企业 SSO、细粒度 RBAC 或审计平台。
 
 ## 演示结果
 
@@ -119,6 +124,17 @@ http://127.0.0.1:7860
 3. 点击“提交”，查看待审核的工具名称和参数；
 4. 点击 `Approve` 继续生成报告，或点击 `Reject` 验证拒绝分支；
 5. Demo 报告会明确说明结果是固定案例，不是真实模型推理。
+
+### 6. 体验历史会话第二期
+
+1. 连续提交两轮问题，确认同一会话显示此前全部消息；
+2. 新建另一会话，再从左侧列表切回第一段会话；
+3. 用“搜索历史”检索标题或消息正文，并测试分页；
+4. 归档会话，勾选“包含归档”后恢复；
+5. 只有勾选“确认永久删除”后才可永久删除，会话消息和对应 Agent checkpoint 会一起清理；
+6. 重启应用，确认未删除的历史和待审核状态仍存在。
+
+完整演示脚本见 [`docs/conversation-history-demo-runbook.md`](docs/conversation-history-demo-runbook.md)。
 
 ## 运行模式
 
@@ -209,6 +225,8 @@ equipdoc-agent/
 │  ├─ tools/                   # 安全信号诊断工具
 │  ├─ rag/                     # Dense/词法检索与降级
 │  ├─ models/                  # CNN 结构定义
+│  ├─ conversation_store.py    # 双后端会话库、迁移、隔离、搜索与压缩
+│  ├─ persistence.py           # LangGraph SQLite/PostgreSQL checkpoint
 │  ├─ config.py
 │  └─ health.py
 ├─ data/
@@ -235,6 +253,15 @@ equipdoc-agent/
 | `EQUIPDOC_LLM_BASE_URL` | OpenAI-compatible 服务地址 | 本机8000端口 |
 | `EQUIPDOC_BEARING_MODEL_PATH` | CNN 权重路径 | `models/bearing_cnn.pth` |
 | `EQUIPDOC_UPLOAD_ROOT` | 上传沙箱 | `runtime/uploads` |
+| `EQUIPDOC_CONVERSATION_DB_PATH` | 历史会话与消息数据库 | `runtime/equipdoc_conversations.sqlite3` |
+| `EQUIPDOC_CHECKPOINT_DB_PATH` | LangGraph 持久化 checkpoint | `runtime/langgraph_checkpoints.sqlite3` |
+| `EQUIPDOC_DATABASE_URL` | 可选 PostgreSQL 会话库 URL；非空时覆盖 SQLite 路径 | 空 |
+| `EQUIPDOC_CHECKPOINT_DATABASE_URL` | 可选 PostgreSQL checkpoint URL | 空 |
+| `EQUIPDOC_AUTH_USERS` | 可选登录账号，格式 `user:password,user2:password2` | 空（本地单用户） |
+| `EQUIPDOC_HISTORY_PAGE_SIZE` | 历史列表每页数量，限制为5～50 | `12` |
+| `EQUIPDOC_CONVERSATION_RETENTION_DAYS` | 已归档会话自动清理天数 | `90` |
+| `EQUIPDOC_RECENT_CONTEXT_MESSAGES` | 长会话压缩后保留的最近消息数 | `8` |
+| `EQUIPDOC_MEMORY_COMPACTION_TURNS` | Agent checkpoint 换代轮数 | `12` |
 | `EQUIPDOC_MAX_UPLOAD_MB` | 上传大小限制 | `8` |
 | `EQUIPDOC_UPLOAD_TTL_HOURS` | 应用暂存信号保留时长 | `24` |
 | `EQUIPDOC_RAG_DB_DIR` | Chroma 目录 | `vector_db/chroma_equipdoc` |
@@ -248,7 +275,7 @@ equipdoc-agent/
 python -m unittest discover -s tests -v
 ```
 
-当前本地实现包含130项 `unittest`，覆盖旧 Demo/P2 回归以及 P2.1/P2.2 规划校验、系统信号依赖归一化、未知依赖拒绝、三工具权限、人工审核、最大步数、多轮记忆、逐句引用、槽位化证据覆盖、知识检索锚定、Demo 样例信号与知识问题的路由隔离、移除信号后的会话状态清理、安全策略优先级、降级分支、隐私与运行时清理、索引清单和正式评测集合同。
+当前本地实现包含167项 `unittest`，覆盖旧 Demo/P2 回归以及 P2.1/P2.2 规划校验、系统信号依赖归一化、未知依赖拒绝、三工具权限、人工审核、最大步数、多轮记忆、逐句引用、槽位化证据覆盖、知识检索锚定、历史会话持久化、用户隔离、正文搜索与分页、归档/恢复/永久删除、一期数据库原地迁移、并发运行唯一性、长会话摘要与 checkpoint 换代、SQLite/PostgreSQL 后端选择、checkpoint 重启恢复、取消任务防止迟到结果写入、安全策略优先级、隐私与运行时清理、索引清单和正式评测集合同。
 
 `.github/workflows/ci.yml` 会在 GitHub 上使用 Python 3.10、3.11 和 3.12 自动运行单元测试、健康检查和 Demo Smoke Test。
 
@@ -292,6 +319,8 @@ P1 原始口径见 [`docs/evaluation-report.md`](docs/evaluation-report.md)，P1
 
 - UI只接受上传文件或内置样例，不接受服务器路径输入；
 - 上传文件被复制到 `runtime/uploads` 并使用随机文件名，过期暂存文件会自动清理；
+- 登录启用后，用户归属只取自服务端 `gr.Request.username`，不接受浏览器传入 owner id；所有会话、消息、运行和管理操作都再次校验 owner；
+- 永久删除采用显式确认，并同步删除该会话历次 Agent checkpoint；归档数据按配置的保留期清理；
 - 工具只允许读取 `data/samples` 和 `runtime/uploads`；
 - 仅接受受限大小的数值型一维 `.npy`；
 - 向量索引必须通过切片哈希、Embedding 模型和集合名清单校验，陈旧索引会禁用而不是静默使用；

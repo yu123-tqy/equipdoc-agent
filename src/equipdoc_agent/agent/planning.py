@@ -129,6 +129,7 @@ _MEMORY_FIELDS = (
     "completed_tools",
     "attempted_tools",
     "failed_tools",
+    "conversation_context",
 )
 
 
