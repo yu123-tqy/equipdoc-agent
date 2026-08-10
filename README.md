@@ -8,7 +8,7 @@
 
 > 当前公开版本默认运行在无模型 Demo 模式：可以完整演示 Agent 工作流，但故障类型是明确标注的固定案例回放，不能作为真实设备诊断结果。Full 模式需要单独配置 Qwen 服务、CNN 权重和可选向量库。
 
-![EquipDoc-Agent Demo 首页](docs/assets/demo-overview.png)
+![EquipDoc-Agent Full Agentic 与历史会话界面](docs/assets/demo-overview.png)
 
 ## 30 秒了解项目
 
@@ -54,15 +54,21 @@ flowchart LR
 
 未配置登录时使用 `local` 命名空间，适合个人演示；公共部署应配置 `EQUIPDOC_AUTH_USERS` 并使用 PostgreSQL。Gradio 基础登录适合作品演示，不等同于企业 SSO、细粒度 RBAC 或审计平台。
 
+## 历史会话与持久化记忆
+
+左侧历史列表支持新建、切换、标题与正文搜索、重命名、分页、归档、恢复和确认后永久删除。完整可见消息保存在关系数据库中，LangGraph checkpoint 单独持久化；应用重启后，未删除的历史消息和待审核状态仍可恢复。
+
+![EquipDoc-Agent 历史会话搜索与管理](docs/assets/demo-history.png)
+
 ## 演示结果
 
 诊断工具调用前，系统会暂停工作流并等待人工审核。审核界面只展示工具名称和经过脱敏的文件名，不暴露服务器内部路径。
 
 ![EquipDoc-Agent 人工审核工具调用](docs/assets/demo-review.png)
 
-审批通过后，系统输出带 Demo 标识、检索证据、处理建议和适用边界的报告：
+审批通过后，系统将工具结果、检索证据、处理建议和适用边界组织为可审计报告。AutoDL Full 模式调用真实 Qwen、CNN 与 RAG 链路；公开默认 Demo 模式会明确标注固定案例，不会伪装成真实模型诊断。
 
-![EquipDoc-Agent Demo 诊断报告](docs/assets/demo-report.png)
+![EquipDoc-Agent Full Agentic 诊断报告](docs/assets/demo-report.png)
 
 ## 快速运行 Demo
 
